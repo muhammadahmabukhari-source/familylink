@@ -1077,34 +1077,76 @@ function renderList(members){
     const {bg,c}=getMC(m.id,idx); const isMe=m.id===CU.uid;
     const card=document.createElement('div'); card.className='mc';
     card.onclick=()=>showMDet(m,bg,c);
-    const ph=m.phone?`window.location.href='tel:${m.phone}'`:`showToast('No phone number set')`;
-    card.innerHTML='<div class="mc-av" style="background:'+bg+'">'+esc(m.av||'👤')+'<span class="sdot-sm" style="background:var(--green)"></span></div>'
-      +'<div class="mc-info"><div class="mc-name">'+esc(m.name)+(isMe?' (You)':'')+'</div><div class="mc-role">'+esc(m.role||'Member')+(m.isAdmin?' · Admin':'')+'</div><div class="mc-loc" id="ml-'+m.id+'">📍 Loading…</div></div>'
-      +(isMe?'<span class="badge bb">You</span>':'<div class="mc-acts"><button class="abt g" onclick="event.stopPropagation();'+ph+'">📞</button><button class="abt b" onclick="event.stopPropagation();switchScreen('chat')">💬</button><button class="abt a" onclick="event.stopPropagation();switchScreen('map')">📍</button></div>');
+    // Build avatar section
+    const avDiv=document.createElement('div');
+    avDiv.className='mc-av'; avDiv.style.background=bg;
+    avDiv.innerHTML=esc(m.av||'👤')+'<span class="sdot-sm" style="background:var(--green)"></span>';
+    card.appendChild(avDiv);
+    // Build info section
+    const infoDiv=document.createElement('div'); infoDiv.className='mc-info';
+    infoDiv.innerHTML='<div class="mc-name">'+esc(m.name)+(isMe?' (You)':'')+'</div>'
+      +'<div class="mc-role">'+esc(m.role||'Member')+(m.isAdmin?' · Admin':'')+'</div>'
+      +'<div class="mc-loc" id="ml-'+m.id+'">📍 Loading…</div>';
+    card.appendChild(infoDiv);
+    // Build action buttons
+    if(isMe){
+      const badge=document.createElement('span'); badge.className='badge bb'; badge.textContent='You';
+      card.appendChild(badge);
+    } else {
+      const acts=document.createElement('div'); acts.className='mc-acts';
+      const b1=document.createElement('button'); b1.className='abt g'; b1.textContent='📞';
+      b1.onclick=function(e){e.stopPropagation(); m.phone?window.location.href='tel:'+m.phone:showToast('No phone number set');};
+      const b2=document.createElement('button'); b2.className='abt b'; b2.textContent='💬';
+      b2.onclick=function(e){e.stopPropagation(); switchScreen('chat');};
+      const b3=document.createElement('button'); b3.className='abt a'; b3.textContent='📍';
+      b3.onclick=function(e){e.stopPropagation(); switchScreen('map');};
+      acts.appendChild(b1); acts.appendChild(b2); acts.appendChild(b3);
+      card.appendChild(acts);
+    }
     list.appendChild(card);
     rtdb.ref('locations/'+GID+'/'+m.id+'/addr').on('value',s=>{
       const el=document.getElementById('ml-'+m.id); if(el) el.textContent='📍 '+(s.val()||'Not sharing');
     });
   });
 }
+
 function showMDet(m,bg,c){
-  const ph=m.phone?`window.location.href='tel:${m.phone}'`:`showToast('No phone number set')`;
-  openModal('<div style="text-align:center;margin-bottom:16px">'
-    +'<div style="width:72px;height:72px;border-radius:20px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 10px">'+esc(m.av||'👤')+'</div>'
-    +'<div style="font-size:19px;font-weight:800">'+esc(m.name)+'</div>'
-    +'<div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(m.role||'Member')+(m.isAdmin?' · Admin':'')+'</div>'
-    +'<div style="margin-top:6px"><span class="badge bg">● Online</span></div>'
-    +'<div id="det-addr" style="font-size:12px;color:var(--text3);margin-top:4px">📍 Loading…</div></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">'
-    +'<button onclick="'+ph+'" style="padding:12px 8px;background:var(--green-soft);border:1px solid rgba(16,185,129,.2);border-radius:10px;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">📞<br>Call</button>'
-    +'<button onclick="closeModal();switchScreen('chat')" style="padding:12px 8px;background:var(--accent-soft);border:1px solid rgba(67,97,238,.2);border-radius:10px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">💬<br>Message</button>'
-    +'<button onclick="closeModal();switchScreen('map')" style="padding:12px 8px;background:var(--amber-soft);border:1px solid rgba(245,158,11,.2);border-radius:10px;color:var(--amber);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">📍<br>Locate</button></div>'
-    +'<button onclick="closeModal()" class="mbtn secondary" style="width:100%">Close</button>');
+  const sheet = document.createElement('div');
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText='text-align:center;margin-bottom:16px';
+  const avEl = document.createElement('div');
+  avEl.style.cssText='width:72px;height:72px;border-radius:20px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 10px';
+  avEl.textContent=m.av||'👤';
+  const nameEl=document.createElement('div'); nameEl.style.cssText='font-size:19px;font-weight:800'; nameEl.textContent=m.name;
+  const roleEl=document.createElement('div'); roleEl.style.cssText='font-size:13px;color:var(--text2);margin-top:2px'; roleEl.textContent=(m.role||'Member')+(m.isAdmin?' · Admin':'');
+  const badgeEl=document.createElement('div'); badgeEl.style.marginTop='6px'; badgeEl.innerHTML='<span class="badge bg">● Online</span>';
+  const addrEl=document.createElement('div'); addrEl.id='det-addr'; addrEl.style.cssText='font-size:12px;color:var(--text3);margin-top:4px'; addrEl.textContent='📍 Loading…';
+  hdr.appendChild(avEl); hdr.appendChild(nameEl); hdr.appendChild(roleEl); hdr.appendChild(badgeEl); hdr.appendChild(addrEl);
+  // Action buttons
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px';
+  const btnStyle='padding:12px 8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;border:none';
+  const b1=document.createElement('button'); b1.style.cssText=btnStyle+';background:var(--green-soft);color:var(--green)'; b1.innerHTML='📞<br>Call';
+  b1.onclick=function(){m.phone?window.location.href='tel:'+m.phone:showToast('No phone number set');};
+  const b2=document.createElement('button'); b2.style.cssText=btnStyle+';background:var(--accent-soft);color:var(--accent)'; b2.innerHTML='💬<br>Message';
+  b2.onclick=function(){closeModal();switchScreen('chat');};
+  const b3=document.createElement('button'); b3.style.cssText=btnStyle+';background:var(--amber-soft);color:var(--amber)'; b3.innerHTML='📍<br>Locate';
+  b3.onclick=function(){closeModal();switchScreen('map');};
+  grid.appendChild(b1); grid.appendChild(b2); grid.appendChild(b3);
+  // Close button
+  const closeBtn=document.createElement('button'); closeBtn.className='mbtn secondary'; closeBtn.style.width='100%'; closeBtn.textContent='Close';
+  closeBtn.onclick=closeModal;
+  sheet.appendChild(hdr); sheet.appendChild(grid); sheet.appendChild(closeBtn);
+  // Open modal with DOM element
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML=''; 
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+  ms.appendChild(sheet);
+  document.getElementById('modal-overlay').style.display='flex';
+  // Load address
   rtdb.ref('locations/'+GID+'/'+m.id+'/addr').once('value',s=>{
     const el=document.getElementById('det-addr'); if(el) el.textContent='📍 '+(s.val()||'Location not shared');
   });
 }
-
 // ══ CHAT ══
 function listenChat(){
   unsChat=db.collection('groups').doc(GID).collection('messages').orderBy('createdAt').limitToLast(80).onSnapshot(snap=>{
@@ -1287,14 +1329,35 @@ function dismissCall(){clearInterval(callInt);document.getElementById('cbanner')
 
 // ══ INVITE SHEET ══
 function showInvite(){
-  const code=GID||'—', url=location.origin+location.pathname;
-  openModal('<div class="mtitle">Invite Family Member</div><div class="msub">Share this code — they enter it when signing up on the app.</div>'
-    +'<div style="background:linear-gradient(135deg,#4361ee,#7c3aed);border-radius:14px;padding:20px;text-align:center;margin-bottom:14px">'
-    +'<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">🔑 Family Group Code</div>'
-    +'<div style="font-size:28px;font-weight:900;color:white;letter-spacing:.15em;margin-bottom:14px">'+esc(code)+'</div>'
-    +'<button onclick="navigator.clipboard.writeText(''+code+'').then(()=>showToast('✅ Code copied!'))" style="padding:9px 20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:22px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">📋 Copy Code</button></div>'
-    +'<div style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px">They open the app → <b>Join an Existing Family</b> → enter code: <b>'+esc(code)+'</b></div>'
-    +'<div class="mactions"><button class="mbtn secondary" onclick="closeModal()">Close</button><button class="mbtn primary" onclick="shareInv(''+code+'',''+url+'')">📱 Share Invite</button></div>');
+  const code=GID||'—';
+  const url=location.origin+location.pathname;
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML='';
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+  // Title
+  const t=document.createElement('div'); t.className='mtitle'; t.textContent='Invite Family Member'; ms.appendChild(t);
+  const s=document.createElement('div'); s.className='msub'; s.textContent='Share this code — they enter it when signing up on the app.'; ms.appendChild(s);
+  // Code card
+  const card=document.createElement('div');
+  card.style.cssText='background:linear-gradient(135deg,#4361ee,#7c3aed);border-radius:14px;padding:20px;text-align:center;margin-bottom:14px';
+  const lbl=document.createElement('div'); lbl.style.cssText='font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px'; lbl.textContent='🔑 Family Group Code';
+  const val=document.createElement('div'); val.style.cssText='font-size:28px;font-weight:900;color:white;letter-spacing:.15em;margin-bottom:14px'; val.textContent=code;
+  const cpyBtn=document.createElement('button');
+  cpyBtn.style.cssText='padding:9px 20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:22px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif';
+  cpyBtn.textContent='📋 Copy Code';
+  cpyBtn.onclick=function(){navigator.clipboard.writeText(code).then(()=>showToast('✅ Code copied!'));};
+  card.appendChild(lbl); card.appendChild(val); card.appendChild(cpyBtn); ms.appendChild(card);
+  // Instructions
+  const inst=document.createElement('div');
+  inst.style.cssText='font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px';
+  inst.innerHTML='They open the app → <b>Join an Existing Family</b> → enter code: <b>'+code+'</b>';
+  ms.appendChild(inst);
+  // Buttons
+  const acts=document.createElement('div'); acts.className='mactions';
+  const closeBtn=document.createElement('button'); closeBtn.className='mbtn secondary'; closeBtn.textContent='Close'; closeBtn.onclick=closeModal;
+  const shareBtn=document.createElement('button'); shareBtn.className='mbtn primary'; shareBtn.textContent='📱 Share Invite';
+  shareBtn.onclick=function(){shareInv(code,url);};
+  acts.appendChild(closeBtn); acts.appendChild(shareBtn); ms.appendChild(acts);
+  document.getElementById('modal-overlay').style.display='flex';
 }
 function shareInv(code,url){
   const text='Join our FamilyLink family!

@@ -1222,7 +1222,7 @@ function initCIBtns(){
   const cont=document.getElementById('ci-btns'); cont.innerHTML='';
   CI_PLACES.forEach(p=>{
     const btn=document.createElement('button');
-    btn.style.cssText='padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);font-family:'Inter',sans-serif';
+    btn.style.cssText="padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);font-family:'Inter',sans-serif";
     btn.textContent=p.l; btn.onclick=()=>doCI(p.v); cont.appendChild(btn);
   });
 }
@@ -1249,7 +1249,12 @@ function initZones(){
     snap.docs.forEach(doc=>{
       const z=doc.data();
       const item=document.createElement('div'); item.className='zone-item';
-      item.innerHTML='<div class="zone-icon" style="background:var(--accent-soft)">'+(icons[z.name]||'📍')+'</div><div class="zone-info"><div class="zone-name">'+esc(z.name)+'</div><div class="zone-sub">'+esc(z.address||'')+' · '+(z.radius||300)+'m</div></div><button class="ztoggle '+(z.active?'on':'off')+'" onclick="toggleZone(''+doc.id+'',this)"></button>';
+      const item_btn=document.createElement('button');
+      item_btn.className='ztoggle '+(z.active?'on':'off');
+      item_btn.setAttribute('data-id', doc.id);
+      item_btn.onclick=function(){toggleZone(this.getAttribute('data-id'),this);};
+      item.innerHTML='<div class="zone-icon" style="background:var(--accent-soft)">'+(icons[z.name]||'📍')+'</div><div class="zone-info"><div class="zone-name">'+esc(z.name)+'</div><div class="zone-sub">'+esc(z.address||'')+' · '+(z.radius||300)+'m</div></div>';
+      item.appendChild(item_btn);
       list.appendChild(item);
     });
   });
@@ -1360,11 +1365,7 @@ function showInvite(){
   document.getElementById('modal-overlay').style.display='flex';
 }
 function shareInv(code,url){
-  const text='Join our FamilyLink family!
-1. Open: '+url+'
-2. Tap "Join an Existing Family"
-3. Sign up
-4. Enter code: '+code;
+  const text='Join our FamilyLink family!\n1. Open: '+url+'\n2. Tap Join an Existing Family\n3. Sign up\n4. Enter code: '+code;
   if(navigator.share) navigator.share({title:'Join FamilyLink',text}).catch(()=>{});
   else navigator.clipboard.writeText(text).then(()=>showToast('Invite text copied!'));
 }

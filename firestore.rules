@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Users ───────────────────────────────────────────
+    match /users/{uid} {
+      allow read:  if request.auth != null;
+      allow write: if request.auth.uid == uid;
+    }
+
+    // ─── Groups ──────────────────────────────────────────
+    match /groups/{groupId} {
+      allow read, write: if request.auth != null;
+
+      // Members sub-collection
+      match /members/{memberId} {
+        allow read:  if request.auth != null;
+        allow write: if request.auth != null;
+      }
+
+      // Messages
+      match /messages/{msgId} {
+        allow read:  if request.auth != null;
+        allow create: if request.auth != null
+                      && request.resource.data.senderUid == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() <= 2000;
+        allow delete: if request.auth.uid == resource.data.senderUid;
+      }
+
+      // Check-ins
+      match /checkins/{id} {
+        allow read:   if request.auth != null;
+        allow create: if request.auth.uid == request.resource.data.uid;
+      }
+
+      // Activity feed
+      match /activity/{id} {
+        allow read:  if request.auth != null;
+        allow write: if request.auth != null;
+      }
+
+      // Safe zones
+      match /zones/{id} {
+        allow read:  if request.auth != null;
+        allow write: if request.auth != null;
+      }
+
+      // SOS
+      match /sos/{id} {
+        allow read:  if request.auth != null;
+        allow create: if request.auth.uid == request.resource.data.uid;
+      }
+    }
+  }
+}

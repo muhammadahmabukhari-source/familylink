@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background gradient circle -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4361ee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="100" ry="100" fill="url(#bg)"/>
+  <!-- Shield body -->
+  <path d="M256 80 L380 130 L380 260 Q380 360 256 430 Q132 360 132 260 L132 130 Z" 
+        fill="white" opacity="0.95"/>
+  <!-- Shield inner gradient -->
+  <path d="M256 110 L360 153 L360 260 Q360 345 256 405 Q152 345 152 260 L152 153 Z" 
+        fill="url(#bg)" opacity="0.9"/>
+  <!-- Checkmark / family icon -->
+  <circle cx="256" cy="210" r="35" fill="white"/>
+  <path d="M180 290 Q180 255 256 255 Q332 255 332 290 L332 310 Q332 330 256 330 Q180 330 180 310 Z" 
+        fill="white"/>
+  <!-- Small people dots representing family -->
+  <circle cx="200" cy="285" r="12" fill="white" opacity="0.6"/>
+  <circle cx="312" cy="285" r="12" fill="white" opacity="0.6"/>
+</svg>

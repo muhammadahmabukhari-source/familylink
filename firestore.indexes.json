@@ -4,36 +4,68 @@
       "collectionGroup": "messages",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "createdAt", "order": "ASCENDING"}
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "activity",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "checkins",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "locationHistory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ts",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sos",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "zones",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "active", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],

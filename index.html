@@ -307,6 +307,124 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .tab-pill{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
 .tab-pill.active{background:var(--accent);border-color:var(--accent);color:white;box-shadow:0 2px 8px rgba(67,97,238,.3)}
 
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}
+@keyframes ripple{0%{transform:scale(0);opacity:0.6}100%{transform:scale(2.5);opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(67,97,238,.3)}50%{box-shadow:0 0 20px rgba(67,97,238,.6),0 0 40px rgba(124,58,237,.3)}}
+
+/* Screen transitions */
+.screen{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
+.screen.active{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
+
+/* Splash animations */
+.splash-logo{animation:float 3s ease-in-out infinite}
+.splash-title{animation:fadeInUp .5s .1s both}
+.splash-sub{animation:fadeInUp .5s .2s both}
+.splash-feats{animation:fadeInUp .5s .3s both}
+.splash-btns{animation:fadeInUp .5s .4s both}
+
+/* Auth flow animations */
+.auth-body{animation:fadeInUp .3s cubic-bezier(.22,1,.36,1) both}
+.auth-big-title{animation:fadeInUp .3s .05s both}
+.field{animation:fadeInUp .3s .1s both}
+
+/* Card animations */
+.mc{transition:transform .2s,box-shadow .2s}
+.mc:active{transform:scale(0.97)}
+.loc-item{animation:fadeInUp .3s both}
+.act-item{animation:slideInLeft .3s both}
+.msg{animation:fadeInUp .2s both}
+
+/* Button animations */
+.btn-primary,.auth-submit{position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.btn-primary:active,.auth-submit:active{transform:scale(0.97)}
+.btn-primary::after,.auth-submit::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s}
+.btn-primary:hover::after,.auth-submit:hover::after{opacity:1}
+
+/* Nav animations */
+.nav-item{transition:transform .15s}
+.nav-item:active{transform:scale(0.9)}
+.nav-item.active .nav-pip{animation:scaleIn .2s both}
+
+/* Loading overlay animation */
+#loading-overlay{backdrop-filter:blur(8px)}
+.loader{animation:spin 1s linear infinite}
+
+/* Chip animations */
+.mchip{transition:transform .15s}
+.mchip:active{transform:scale(0.93)}
+
+/* Toast animation */
+.toast{transition:all .3s cubic-bezier(.22,1,.36,1)}
+.toast.show{animation:bounceIn .4s both}
+
+/* Modal animation */
+.modal-overlay{backdrop-filter:blur(6px)}
+.modal-sheet{animation:slideInUp .3s cubic-bezier(.22,1,.36,1) both}
+@keyframes slideInUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Stat card animations */
+.stat-card{transition:transform .2s,box-shadow .2s}
+.stat-card:active{transform:scale(0.97)}
+
+/* Home header gradient animation */
+.home-header{background-size:200% 200%;animation:gradientShift 8s ease infinite}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* SOS panic button pulse */
+#panic-btn{animation:panicPulse 2s ease-in-out infinite}
+
+/* Member strip */
+.mavt{transition:transform .2s,box-shadow .2s}
+.mavt:hover{transform:scale(1.08)}
+
+/* Input focus animation */
+.finput,.minput{transition:border-color .2s,box-shadow .2s}
+.finput:focus,.minput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,97,238,.15)}
+
+/* Role option animation */
+.role-opt{transition:all .2s cubic-bezier(.22,1,.36,1)}
+.role-opt.sel{animation:scaleIn .2s both}
+
+/* Feature cards on splash */
+.sf{animation:fadeInUp .4s both}
+.sf:nth-child(1){animation-delay:.3s}
+.sf:nth-child(2){animation-delay:.4s}
+.sf:nth-child(3){animation-delay:.5s}
+.sf:nth-child(4){animation-delay:.6s}
+
+/* Notification badge */
+#nc{animation:pulse 1.5s ease-in-out infinite}
+
+/* Live dot */
+.live-dot::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
+
+/* Zone toggle */
+.ztoggle{transition:all .25s cubic-bezier(.22,1,.36,1)}
+
+/* Success checkmark */
+@keyframes checkmark{0%{stroke-dashoffset:50}100%{stroke-dashoffset:0}}
+
+/* Staggered list animations */
+.loc-item:nth-child(1){animation-delay:.05s}
+.loc-item:nth-child(2){animation-delay:.1s}
+.loc-item:nth-child(3){animation-delay:.15s}
+.loc-item:nth-child(4){animation-delay:.2s}
+.loc-item:nth-child(5){animation-delay:.25s}
+.act-item:nth-child(1){animation-delay:.05s}
+.act-item:nth-child(2){animation-delay:.1s}
+.act-item:nth-child(3){animation-delay:.15s}
+.act-item:nth-child(4){animation-delay:.2s}
 </style>
 </head>
 <body>
@@ -324,10 +442,11 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   </div>
   <div class="splash-btns">
    <button class="btn-primary" id="create-btn" onclick="showFlow('flow-create-s1')">Create Family (Admin)</button>
-   <button class="btn-link" onclick="showFlow('flow-signin')">Already an admin? Sign In</button>
+   <button class="btn-secondary" onclick="showFlow('flow-join-s1')">Join an Existing Family</button>
+   <button class="btn-link" onclick="showFlow('flow-signin')">Already have an account? Sign In</button>
   </div>
   <div id="splash-err" style="margin-top:12px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:10px;padding:10px 14px;color:white;font-size:12px;display:none;max-width:300px;text-align:left"></div>
-  <div id="splash-status" style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.5)">v4.0</div>
+  <div id="splash-status" style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.5)">v8.0</div>
   <div style="margin-top:16px;background:rgba(255,255,255,.12);border-radius:12px;padding:14px;max-width:300px;text-align:left">
    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:6px">👨‍👩‍👧 For family members:</div>
    <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.6">Ask your family admin to add you from the app — you'll get a link to join instantly. No account needed!</div>
@@ -426,13 +545,50 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
    </div>
   </div>
 
-  <!-- MEMBER JOIN (via link) -->
-  <div id="flow-member-join" style="display:none">
-   <div class="auth-body" style="padding-top:48px;text-align:center">
-    <div style="font-size:56px;margin-bottom:12px">👋</div>
-    <div class="auth-big-title" id="mj-title">Joining family...</div>
-    <div class="auth-sub" id="mj-sub">Please wait</div>
-    <div class="auth-err" id="mj-err"></div>
+  <!-- JOIN FAMILY - Step 1: Enter Code -->
+  <div id="flow-join-s1" style="display:none">
+   <div class="auth-hdr"><div class="back-btn" onclick="showSplash()">←</div><div class="auth-hdr-title">Join Family</div></div>
+   <div class="auth-body">
+    <div class="steps"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div><span class="slabel">Step 1 of 3</span></div>
+    <div class="auth-big-title">Enter Family Code</div>
+    <div class="auth-sub">Get the code from your family's admin (in Settings → Family Code)</div>
+    <div class="field">
+     <label class="flabel">Family Group Code</label>
+     <input class="finput code" id="join-code" type="text" placeholder="e.g. KHAN-X7K2P" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+     <div class="fhint" id="found-fam" style="color:var(--green);font-weight:600;margin-top:8px"></div>
+    </div>
+    <button class="auth-submit" onclick="joinS1()">Verify Code →</button>
+    <div class="auth-err" id="join-e1"></div>
+    <div style="margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px">
+     <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px">💡 No code?</div>
+     <div style="font-size:12px;color:var(--text3);line-height:1.6">Ask your family admin to open <b>Settings → Family Code</b> in the app and share it with you.</div>
+    </div>
+   </div>
+  </div>
+
+  <!-- JOIN FAMILY - Step 2: Name + Role only -->
+  <div id="flow-join-s2" style="display:none">
+   <div class="auth-hdr"><div class="back-btn" onclick="showFlow('flow-join-s1')">←</div><div class="auth-hdr-title">Join Family</div></div>
+   <div class="auth-body">
+    <div class="steps"><div class="sdot done"></div><div class="sdot active"></div><span class="slabel">Step 2 of 2</span></div>
+    <div class="auth-big-title">Who are you?</div>
+    <div class="auth-sub">Joining <b id="joining-fam-name">this family</b> — just enter your name and role</div>
+    <div class="field"><label class="flabel">Your Name</label><input class="finput" id="join-name" type="text" placeholder="e.g. Sara, Kamil, Dadi"/></div>
+    <div class="field"><label class="flabel">Your Role</label>
+     <div class="role-grid" id="jrole-pick">
+      <div class="role-opt sel" data-role="Son" onclick="selRole(this,'jrole-pick')"><div class="re">👦</div>Son</div>
+      <div class="role-opt" data-role="Daughter" onclick="selRole(this,'jrole-pick')"><div class="re">👧</div>Daughter</div>
+      <div class="role-opt" data-role="Mother" onclick="selRole(this,'jrole-pick')"><div class="re">👩‍💼</div>Mother</div>
+      <div class="role-opt" data-role="Father" onclick="selRole(this,'jrole-pick')"><div class="re">👨‍💼</div>Father</div>
+      <div class="role-opt" data-role="Brother" onclick="selRole(this,'jrole-pick')"><div class="re">🧑</div>Brother</div>
+      <div class="role-opt" data-role="Sister" onclick="selRole(this,'jrole-pick')"><div class="re">👩</div>Sister</div>
+      <div class="role-opt" data-role="Grandfather" onclick="selRole(this,'jrole-pick')"><div class="re">👴</div>Grandfather</div>
+      <div class="role-opt" data-role="Grandmother" onclick="selRole(this,'jrole-pick')"><div class="re">👵</div>Grandmother</div>
+     </div>
+    </div>
+    <div class="field"><label class="flabel">Phone (optional)</label><input class="finput" id="join-phone" type="tel" placeholder="+92 300 0000000"/></div>
+    <button class="auth-submit" id="join-finish-btn" onclick="joinS2()">🎉 Join Family!</button>
+    <div class="auth-err" id="join-e2"></div>
    </div>
   </div>
 
@@ -683,12 +839,6 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
  <div class="modal-sheet" id="modal-sheet"></div>
 </div>
 
-
-
-
-
-</script>
-
 <!-- Firebase SDKs MUST load before app script -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -698,7 +848,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v5.0 loaded - FIXED");
+console.log("FamilyLink v8.0 - NAME ONLY JOIN");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -765,7 +915,8 @@ function showSplash(){
 function showFlow(id){
   document.getElementById('splash').style.display='none';
   document.getElementById('auth-panel').style.display='flex';
-  ['flow-signin','flow-create-s1','flow-create-s2','flow-create-s3','flow-member-join'].forEach(fid=>{
+  ['flow-signin','flow-create-s1','flow-create-s2','flow-create-s3',
+   'flow-join-s1','flow-join-s2'].forEach(fid=>{
     const el=document.getElementById(fid); if(el) el.style.display='none';
   });
   const t=document.getElementById(id); if(t) t.style.display='block';
@@ -917,6 +1068,148 @@ async function doGoogleAuth(){
   showLoading('Opening Google sign-in…');
   try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());}
   catch(e){hideLoading();}
+}
+
+// ══ JOIN FAMILY (name only - anonymous auth) ══
+async function joinS1(){
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  if(!code||code.length<5){setErr('join-e1','Please enter a valid family code');return;}
+  showLoading('Searching for family…');
+  try{
+    const snap=await db.collection('groups').doc(code).get();
+    if(!snap.exists){hideLoading();setErr('join-e1','Family code not found. Check and try again.');return;}
+    const fd=snap.data(); pendGID=code;
+    const famEl=document.getElementById('found-fam');
+    if(famEl) famEl.textContent='✅ Found: '+(fd.name||'Family')+(fd.city?' · '+fd.city:'');
+    const jfn=document.getElementById('joining-fam-name');
+    if(jfn) jfn.textContent=fd.name||'this family';
+    hideLoading(); setErr('join-e1',''); showFlow('flow-join-s2');
+  }catch(e){hideLoading();setErr('join-e1',e.message);}
+}
+
+async function joinS2(){
+  const name=document.getElementById('join-name').value.trim();
+  const role=getSelRole('jrole-pick');
+  const phone=document.getElementById('join-phone').value.trim();
+  if(!name){setErr('join-e2','Please enter your name');return;}
+  const btn=document.getElementById('join-finish-btn');
+  if(btn){btn.disabled=true;btn.textContent='Joining…';}
+  const roleEmojis={Father:'👨',Mother:'👩',Son:'👦',Daughter:'👧',Brother:'🧑',Sister:'👩',Grandfather:'👴',Grandmother:'👵',Other:'👤'};
+  const av=roleEmojis[role]||'👤';
+  showLoading('Joining your family…');
+  try{
+    const cred=await auth.signInAnonymously();
+    const uid=cred.user.uid; const gid=pendGID;
+    await db.collection('users').doc(uid).set({
+      name,av,role,phone:phone||'',email:'',
+      groupId:gid,isAdmin:false,isGuest:true,
+      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('groups').doc(gid).collection('members').doc(uid).set({
+      uid,name,av,role,phone:phone||'',email:'',isAdmin:false,isGuest:true,
+      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('groups').doc(gid).collection('activity').add({
+      type:'join',text:name+' joined the family! 👋',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    hideLoading();
+  }catch(e){
+    hideLoading();
+    if(btn){btn.disabled=false;btn.textContent='🎉 Join Family!';}
+    setErr('join-e2',e.message);
+  }
+}
+
+// ══ SIGN IN ══
+async function doSignIn(){
+  const email=document.getElementById('si-email').value.trim();
+  const pass=document.getElementById('si-pass').value;
+  if(!email||!pass){setErr('si-err','Please enter email and password');return;}
+  showLoading('Signing in…');
+  try{await auth.signInWithEmailAndPassword(email,pass);}
+  catch(e){
+    hideLoading();
+    console.error('Sign in error:', e.code, e.message);
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
+      setErr('si-err','Wrong email or password. Please try again.');
+    } else if(e.code==='auth/network-request-failed'){
+      setErr('si-err','No internet. Please check your connection.');
+    } else if(e.code==='auth/too-many-requests'){
+      setErr('si-err','Too many attempts. Please wait a minute and try again.');
+    } else {
+      setErr('si-err',e.message);
+    }
+  }
+}
+async function doGoogleAuth(){
+  showLoading('Opening Google sign-in…');
+  try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());}
+  catch(e){hideLoading();}
+}
+
+// ══ JOIN FAMILY (family code system) ══
+async function joinS1(){
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  if(!code||code.length<5){setErr('join-e1','Please enter a valid family code');return;}
+  showLoading('Searching for family…');
+  try{
+    const snap=await db.collection('groups').doc(code).get();
+    if(!snap.exists){hideLoading();setErr('join-e1','Family code not found. Check and try again.');return;}
+    const fd=snap.data(); pendGID=code;
+    const famEl=document.getElementById('found-fam');
+    if(famEl) famEl.textContent='✅ Found: '+(fd.name||'Family')+(fd.city?' ('+fd.city+')':'');
+    const jfn=document.getElementById('joining-fam-name');
+    if(jfn) jfn.textContent=fd.name||'this family';
+    hideLoading(); setErr('join-e1',''); showFlow('flow-join-s2');
+  }catch(e){hideLoading();setErr('join-e1',e.message);}
+}
+
+function joinS2(){
+  const name=document.getElementById('join-name').value.trim();
+  const email=document.getElementById('join-email').value.trim();
+  const pass=document.getElementById('join-pass').value;
+  if(!name){setErr('join-e2','Please enter your name');return;}
+  if(!email||!email.includes('@')){setErr('join-e2','Please enter a valid email');return;}
+  if(pass.length<6){setErr('join-e2','Password must be at least 6 characters');return;}
+  setErr('join-e2',''); showFlow('flow-join-s3');
+}
+
+async function joinS3(){
+  const name=document.getElementById('join-name').value.trim();
+  const email=document.getElementById('join-email').value.trim();
+  const pass=document.getElementById('join-pass').value;
+  const role=getSelRole('jrole-pick');
+  const phone=document.getElementById('join-phone').value.trim();
+  const btn=document.getElementById('join-finish-btn');
+  if(btn){btn.disabled=true;btn.textContent='Joining…';}
+  const roleEmojis={Father:'👨',Mother:'👩',Son:'👦',Daughter:'👧',Brother:'🧑',Sister:'👩',Grandfather:'👴',Grandmother:'👵',Other:'👤'};
+  const av=roleEmojis[role]||'👤';
+  showLoading('Joining your family…');
+  try{
+    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+    await cred.user.updateProfile({displayName:name});
+    const uid=cred.user.uid; const gid=pendGID;
+    await db.collection('users').doc(uid).set({
+      name,email,av,role,phone:phone||'',
+      groupId:gid,isAdmin:false,
+      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('groups').doc(gid).collection('members').doc(uid).set({
+      uid,name,email,av,role,phone:phone||'',isAdmin:false,
+      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await logAct('join',name+' joined the family! 👋');
+    hideLoading();
+  }catch(e){
+    hideLoading();
+    if(btn){btn.disabled=false;btn.textContent='🎉 Join Family!';}
+    if(e.code==='auth/email-already-in-use'){
+      setErr('join-e3','This email is already registered. Please sign in instead.');
+    } else {
+      setErr('join-e3',e.message);
+    }
+  }
 }
 
 // ══ MEMBER JOIN VIA LINK ══
@@ -1127,10 +1420,20 @@ async function pushLoc(lat,lng,acc){
   checkZones(lat,lng);
 }
 function revGeo(lat,lng,cb){
-  if(typeof google==='undefined'){cb(lat.toFixed(4)+', '+lng.toFixed(4));return;}
-  new google.maps.Geocoder().geocode({location:{lat,lng}},(res,st)=>{
-    cb(st==='OK'&&res[0]?res[0].formatted_address:lat.toFixed(4)+', '+lng.toFixed(4));
-  });
+  // Use OpenStreetMap Nominatim (free, no billing needed)
+  const url='https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=16&addressdetails=1';
+  fetch(url,{headers:{'Accept-Language':'en'}})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d&&d.display_name){
+        // Shorten address - take first 2 parts
+        const parts=d.display_name.split(',');
+        cb(parts.slice(0,2).join(',').trim());
+      } else {
+        cb(lat.toFixed(4)+', '+lng.toFixed(4));
+      }
+    })
+    .catch(()=>cb(lat.toFixed(4)+', '+lng.toFixed(4)));
 }
 
 // ══ LISTEN TO ALL LOCATIONS ══
@@ -1552,13 +1855,20 @@ async function confirmZone(){
   const radius=parseInt(document.getElementById('z-rad').value)||300;
   if(!name){showToast('Please enter a zone name');return;}
   closeModal();
-  if(typeof google!=='undefined'&&addr){
-    new google.maps.Geocoder().geocode({address:addr},async(res,st)=>{
-      let lat=null,lng=null;
-      if(st==='OK'&&res[0]){lat=res[0].geometry.location.lat();lng=res[0].geometry.location.lng();}
-      await db.collection('groups').doc(GID).collection('zones').add({name,address:addr,lat,lng,radius,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-      showToast('✅ Safe zone "'+name+'" added!');
-    });
+  // Use Nominatim for geocoding (free)
+  if(addr){
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(addr)+'&limit=1')
+      .then(r=>r.json())
+      .then(async d=>{
+        let lat=null,lng=null;
+        if(d&&d[0]){lat=parseFloat(d[0].lat);lng=parseFloat(d[0].lon);}
+        await db.collection('groups').doc(GID).collection('zones').add({name,address:addr,lat,lng,radius,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        showToast('✅ Safe zone "'+name+'" added!');
+      })
+      .catch(async()=>{
+        await db.collection('groups').doc(GID).collection('zones').add({name,address:addr,lat:null,lng:null,radius,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        showToast('✅ Safe zone "'+name+'" added!');
+      });
   } else {
     await db.collection('groups').doc(GID).collection('zones').add({name,address:addr,lat:null,lng:null,radius,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
     showToast('✅ Safe zone "'+name+'" added!');
@@ -1627,10 +1937,16 @@ const NAV_S=['home','map','chat','history','emergency'];
 function switchScreen(name){
   ALL_S.forEach(s=>{const el=document.getElementById('screen-'+s);if(el)el.classList.toggle('active',s===name);});
   NAV_S.forEach(id=>{const b=document.getElementById('nav-'+id);if(b)b.classList.toggle('active',id===name);});
-  document.getElementById('chat-bar').style.display=name==='chat'?'flex':'none';
-  document.getElementById('mcontent').scrollTop=0;
-  if(name==='notifications'){notifN=0;document.getElementById('nc').style.display='none';}
+  const chatBar=document.getElementById('chat-bar');
+  if(chatBar) chatBar.style.display=name==='chat'?'flex':'none';
+  const mc=document.getElementById('mcontent');
+  if(mc) mc.scrollTop=0;
+  if(name==='notifications'){notifN=0;const nc=document.getElementById('nc');if(nc)nc.style.display='none';}
   if(name==='map'&&mapF&&typeof google!=='undefined') google.maps.event.trigger(mapF,'resize');
+  if(name==='history'){
+    if(histMembers&&histMembers.length) initHistoryScreen(histMembers);
+    if(histMap&&typeof google!=='undefined') google.maps.event.trigger(histMap,'resize');
+  }
 }
 function toggleLoc(btn){
   btn.classList.toggle('on'); btn.classList.toggle('off');
@@ -1915,15 +2231,7 @@ async function loadQuickStats(){
   }catch(e){}
 }
 
-// ══ OVERRIDE switchScreen to init history ══
-const _origSwitchScreen=switchScreen;
-function switchScreen(name){
-  _origSwitchScreen(name);
-  if(name==='history'){
-    initHistoryScreen(histMembers||[]);
-    google&&histMap&&google.maps.event.trigger(histMap,'resize');
-  }
-}
+// history init handled in main switchScreen
 </script>
 
 <!-- Service Worker -->

@@ -6,6 +6,7 @@
 <title>FamilyLink – Real-Time Family Safety</title>
 <link rel="manifest" href="/familylink/manifest.json">
 <meta name="theme-color" content="#4361ee">
+<meta name="app-version" content="8.0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -309,129 +310,275 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 
 /* ══ ANIMATIONS ══ */
-@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+/* GPU acceleration */
+.screen.active,.modal-sheet,.toast,.msg,.loc-item,.act-item,.mc,.mchip,.sf,.field,.role-opt{
+  -webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform,opacity;
+}
+
+/* ── Keyframes ── */
+@keyframes fadeInUp{0%{opacity:0;transform:translateY(28px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fadeInDown{0%{opacity:0;transform:translateY(-20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}
+@keyframes slideInRight{0%{opacity:0;transform:translateX(40px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{0%{opacity:0;transform:translateX(-40px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes slideInUp{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes slideOutDown{0%{transform:translateY(0);opacity:1}100%{transform:translateY(100%);opacity:0}}
+@keyframes scaleIn{0%{opacity:0;transform:scale(0.85)}100%{opacity:1;transform:scale(1)}}
+@keyframes scaleOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.85)}}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0}40%{transform:scale(1.1)}70%{transform:scale(0.95)}100%{transform:scale(1);opacity:1}}
+@keyframes bounceInUp{0%{opacity:0;transform:translateY(60px) scale(0.9)}60%{opacity:1;transform:translateY(-10px) scale(1.02)}80%{transform:translateY(4px)}100%{transform:translateY(0) scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+@keyframes floatShadow{0%,100%{transform:scaleX(1);opacity:.3}50%{transform:scaleX(.85);opacity:.15}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes pulseShadow{0%,100%{box-shadow:0 0 0 0 rgba(67,97,238,.4)}70%{box-shadow:0 0 0 12px rgba(67,97,238,0)}}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes bounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}
-@keyframes ripple{0%{transform:scale(0);opacity:0.6}100%{transform:scale(2.5);opacity:0}}
-@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(67,97,238,.3)}50%{box-shadow:0 0 20px rgba(67,97,238,.6),0 0 40px rgba(124,58,237,.3)}}
-
-/* Screen transitions */
-.screen{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
-.screen.active{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
-
-/* Splash animations */
-.splash-logo{animation:float 3s ease-in-out infinite}
-.splash-title{animation:fadeInUp .5s .1s both}
-.splash-sub{animation:fadeInUp .5s .2s both}
-.splash-feats{animation:fadeInUp .5s .3s both}
-.splash-btns{animation:fadeInUp .5s .4s both}
-
-/* Auth flow animations */
-.auth-body{animation:fadeInUp .3s cubic-bezier(.22,1,.36,1) both}
-.auth-big-title{animation:fadeInUp .3s .05s both}
-.field{animation:fadeInUp .3s .1s both}
-
-/* Card animations */
-.mc{transition:transform .2s,box-shadow .2s}
-.mc:active{transform:scale(0.97)}
-.loc-item{animation:fadeInUp .3s both}
-.act-item{animation:slideInLeft .3s both}
-.msg{animation:fadeInUp .2s both}
-
-/* Button animations */
-.btn-primary,.auth-submit{position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
-.btn-primary:active,.auth-submit:active{transform:scale(0.97)}
-.btn-primary::after,.auth-submit::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s}
-.btn-primary:hover::after,.auth-submit:hover::after{opacity:1}
-
-/* Nav animations */
-.nav-item{transition:transform .15s}
-.nav-item:active{transform:scale(0.9)}
-.nav-item.active .nav-pip{animation:scaleIn .2s both}
-
-/* Loading overlay animation */
-#loading-overlay{backdrop-filter:blur(8px)}
-.loader{animation:spin 1s linear infinite}
-
-/* Chip animations */
-.mchip{transition:transform .15s}
-.mchip:active{transform:scale(0.93)}
-
-/* Toast animation */
-.toast{transition:all .3s cubic-bezier(.22,1,.36,1)}
-.toast.show{animation:bounceIn .4s both}
-
-/* Modal animation */
-.modal-overlay{backdrop-filter:blur(6px)}
-.modal-sheet{animation:slideInUp .3s cubic-bezier(.22,1,.36,1) both}
-@keyframes slideInUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-
-/* Stat card animations */
-.stat-card{transition:transform .2s,box-shadow .2s}
-.stat-card:active{transform:scale(0.97)}
-
-/* Home header gradient animation */
-.home-header{background-size:200% 200%;animation:gradientShift 8s ease infinite}
 @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes panicPulse{0%,100%{box-shadow:0 0 0 15px rgba(239,68,68,.25),0 0 0 30px rgba(239,68,68,.1),0 4px 30px rgba(239,68,68,.5)}50%{box-shadow:0 0 0 22px rgba(239,68,68,.15),0 0 0 44px rgba(239,68,68,.06),0 4px 40px rgba(239,68,68,.7)}}
+@keyframes ripple{0%{transform:scale(0);opacity:.6}100%{transform:scale(3);opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)}}
+@keyframes typewriter{from{width:0}to{width:100%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(67,97,238,.3),0 2px 8px rgba(67,97,238,.15)}50%{box-shadow:0 0 20px rgba(67,97,238,.6),0 0 40px rgba(124,58,237,.3),0 2px 12px rgba(67,97,238,.4)}}
+@keyframes slideTab{0%{transform:translateX(-6px);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes popIn{0%{transform:scale(0) rotate(-8deg);opacity:0}70%{transform:scale(1.08) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes countUp{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes waveIn{0%{opacity:0;transform:translateY(20px) skewY(3deg)}100%{opacity:1;transform:translateY(0) skewY(0)}}
+@keyframes zoomFade{0%{opacity:0;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes markerDrop{0%{transform:translateY(-30px) scale(.8);opacity:0}70%{transform:translateY(4px) scale(1.05)}100%{transform:translateY(0) scale(1);opacity:1}}
 
-/* SOS panic button pulse */
-#panic-btn{animation:panicPulse 2s ease-in-out infinite}
+/* ── Screen transitions ── */
+.screen{display:none!important}
+.screen.active{display:flex!important;flex-direction:column;animation:fadeInUp .4s cubic-bezier(.22,1,.36,1) both}
 
-/* Member strip */
-.mavt{transition:transform .2s,box-shadow .2s}
-.mavt:hover{transform:scale(1.08)}
+/* ── Splash screen ── */
+.splash-logo{animation:float 4s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 8px 24px rgba(67,97,238,.35))}
+.splash-title{animation:bounceInUp .6s .1s both}
+.splash-sub{animation:fadeInUp .5s .25s both}
+.splash-feats{animation:fadeInUp .5s .35s both}
+.splash-btns{animation:fadeInUp .5s .5s both}
+.sf{opacity:0;animation:slideInLeft .45s both}
+.sf:nth-child(1){animation-delay:.35s;animation-name:slideInLeft}
+.sf:nth-child(2){animation-delay:.45s;animation-name:slideInRight}
+.sf:nth-child(3){animation-delay:.55s;animation-name:slideInLeft}
+.sf:nth-child(4){animation-delay:.65s;animation-name:slideInRight}
 
-/* Input focus animation */
-.finput,.minput{transition:border-color .2s,box-shadow .2s}
-.finput:focus,.minput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,97,238,.15)}
+/* ── Auth flows ── */
+.auth-body{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
+.auth-big-title{animation:fadeInUp .4s .05s both}
+.auth-sub{animation:fadeInUp .4s .1s both}
+.field{opacity:0;animation:waveIn .4s both}
+.field:nth-child(1){animation-delay:.08s}
+.field:nth-child(2){animation-delay:.16s}
+.field:nth-child(3){animation-delay:.24s}
+.field:nth-child(4){animation-delay:.32s}
+.auth-submit{animation:bounceInUp .5s .3s both}
+.google-btn{animation:fadeInUp .4s .4s both}
+.steps{animation:fadeInDown .3s both}
 
-/* Role option animation */
-.role-opt{transition:all .2s cubic-bezier(.22,1,.36,1)}
-.role-opt.sel{animation:scaleIn .2s both}
+/* ── Home screen ── */
+.home-header{background-size:200% 200%;animation:gradientShift 10s ease infinite}
+#hgreet{animation:fadeInDown .5s .1s both}
+#htitle{animation:fadeInUp .5s .2s both}
+.stat-card{opacity:0;animation:bounceIn .5s both}
+.stat-card:nth-child(1){animation-delay:.1s}
+.stat-card:nth-child(2){animation-delay:.2s}
+.stat-card:nth-child(3){animation-delay:.3s}
+.stat-card:nth-child(4){animation-delay:.4s}
 
-/* Feature cards on splash */
-.sf{animation:fadeInUp .4s both}
-.sf:nth-child(1){animation-delay:.3s}
-.sf:nth-child(2){animation-delay:.4s}
-.sf:nth-child(3){animation-delay:.5s}
-.sf:nth-child(4){animation-delay:.6s}
+/* ── Members ── */
+.mchip{opacity:0;animation:popIn .4s both}
+.mchip:nth-child(1){animation-delay:.05s}
+.mchip:nth-child(2){animation-delay:.1s}
+.mchip:nth-child(3){animation-delay:.15s}
+.mchip:nth-child(4){animation-delay:.2s}
+.mchip:nth-child(5){animation-delay:.25s}
+.mchip:nth-child(6){animation-delay:.3s}
+.mc{opacity:0;animation:slideInLeft .4s both}
+.mc:nth-child(1){animation-delay:.05s}
+.mc:nth-child(2){animation-delay:.12s}
+.mc:nth-child(3){animation-delay:.19s}
+.mc:nth-child(4){animation-delay:.26s}
+.mc:nth-child(5){animation-delay:.33s}
 
-/* Notification badge */
-#nc{animation:pulse 1.5s ease-in-out infinite}
-
-/* Live dot */
-.live-dot::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
-
-/* Zone toggle */
-.ztoggle{transition:all .25s cubic-bezier(.22,1,.36,1)}
-
-/* Success checkmark */
-@keyframes checkmark{0%{stroke-dashoffset:50}100%{stroke-dashoffset:0}}
-
-/* Staggered list animations */
+/* ── Location list ── */
+.loc-item{opacity:0;animation:slideInRight .4s both}
 .loc-item:nth-child(1){animation-delay:.05s}
-.loc-item:nth-child(2){animation-delay:.1s}
-.loc-item:nth-child(3){animation-delay:.15s}
-.loc-item:nth-child(4){animation-delay:.2s}
-.loc-item:nth-child(5){animation-delay:.25s}
+.loc-item:nth-child(2){animation-delay:.12s}
+.loc-item:nth-child(3){animation-delay:.19s}
+.loc-item:nth-child(4){animation-delay:.26s}
+.loc-item:nth-child(5){animation-delay:.33s}
+
+/* ── Activity feed ── */
+.act-item{opacity:0;animation:slideInLeft .4s both}
 .act-item:nth-child(1){animation-delay:.05s}
-.act-item:nth-child(2){animation-delay:.1s}
-.act-item:nth-child(3){animation-delay:.15s}
-.act-item:nth-child(4){animation-delay:.2s}
+.act-item:nth-child(2){animation-delay:.12s}
+.act-item:nth-child(3){animation-delay:.19s}
+.act-item:nth-child(4){animation-delay:.26s}
+.act-item:nth-child(5){animation-delay:.33s}
+
+/* ── Chat messages ── */
+.msg{opacity:0;animation:fadeInUp .25s both}
+.msg.own{animation-name:slideInRight}
+
+/* ── Buttons ── */
+.btn-primary,.btn-secondary,.auth-submit{
+  position:relative;overflow:hidden;
+  transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s,background .2s;
+}
+.btn-primary:active,.btn-secondary:active,.auth-submit:active{transform:scale(.95)!important}
+.btn-primary::before,.auth-submit::before{
+  content:'';position:absolute;top:50%;left:50%;width:0;height:0;
+  background:rgba(255,255,255,.25);border-radius:50%;transform:translate(-50%,-50%);
+  transition:width .5s,height .5s,opacity .5s;opacity:0;
+}
+.btn-primary:active::before,.auth-submit:active::before{width:200px;height:200px;opacity:0}
+
+/* ── Nav bar ── */
+.nav-item{transition:transform .2s cubic-bezier(.22,1,.36,1),color .2s}
+.nav-item:active{transform:scale(.85)}
+.nav-item.active{animation:slideTab .25s both}
+.nav-pip{transition:all .25s cubic-bezier(.22,1,.36,1)}
+.nav-item.active .nav-pip{animation:scaleIn .25s both}
+
+/* ── Modal ── */
+.modal-overlay{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal-sheet{animation:slideInUp .35s cubic-bezier(.22,1,.36,1) both}
+.mhandle{animation:scaleIn .3s .1s both}
+.mtitle{animation:fadeInDown .3s .1s both}
+.mbtn{transition:transform .15s,box-shadow .15s}
+.mbtn:active{transform:scale(.95)}
+
+/* ── Toast ── */
+.toast.show{animation:bounceIn .4s cubic-bezier(.22,1,.36,1) both}
+
+/* ── Loading ── */
+#loading-overlay{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.loader{animation:spin .8s linear infinite}
+#ltxt{animation:pulse 1.5s ease-in-out infinite}
+
+/* ── Safe zones ── */
+.zone-item{opacity:0;animation:slideInRight .4s both}
+.zone-item:nth-child(1){animation-delay:.05s}
+.zone-item:nth-child(2){animation-delay:.12s}
+.zone-item:nth-child(3){animation-delay:.19s}
+.ztoggle{transition:all .3s cubic-bezier(.22,1,.36,1)}
+
+/* ── Check-in buttons ── */
+#ci-btns button{opacity:0;animation:popIn .4s both;transition:transform .15s,box-shadow .15s}
+#ci-btns button:nth-child(1){animation-delay:.05s}
+#ci-btns button:nth-child(2){animation-delay:.1s}
+#ci-btns button:nth-child(3){animation-delay:.15s}
+#ci-btns button:nth-child(4){animation-delay:.2s}
+#ci-btns button:nth-child(5){animation-delay:.25s}
+#ci-btns button:nth-child(6){animation-delay:.3s}
+#ci-btns button:nth-child(7){animation-delay:.35s}
+#ci-btns button:nth-child(8){animation-delay:.4s}
+#ci-btns button:active{transform:scale(.93)}
+
+/* ── Panic button ── */
+#panic-btn{animation:panicPulse 2s ease-in-out infinite;transition:transform .1s}
+#panic-btn:active{transform:scale(.93)!important}
+
+/* ── Role options ── */
+.role-opt{transition:all .2s cubic-bezier(.22,1,.36,1);opacity:0;animation:popIn .35s both}
+.role-opt:nth-child(1){animation-delay:.05s}
+.role-opt:nth-child(2){animation-delay:.1s}
+.role-opt:nth-child(3){animation-delay:.15s}
+.role-opt:nth-child(4){animation-delay:.2s}
+.role-opt:nth-child(5){animation-delay:.25s}
+.role-opt:nth-child(6){animation-delay:.3s}
+.role-opt:nth-child(7){animation-delay:.35s}
+.role-opt:nth-child(8){animation-delay:.4s}
+.role-opt.sel{animation:heartbeat .5s both;box-shadow:0 0 0 3px var(--accent)}
+
+/* ── Input fields ── */
+.finput,.minput{transition:border-color .2s,box-shadow .25s,transform .15s}
+.finput:focus,.minput:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(67,97,238,.15);
+  transform:scale(1.01);
+}
+
+/* ── Notification badge ── */
+#nc{animation:heartbeat 1.5s ease-in-out infinite}
+.ni.unread{animation:slideInRight .35s both}
+.ni{opacity:0;animation:fadeInUp .3s both}
+.ni:nth-child(1){animation-delay:.05s}
+.ni:nth-child(2){animation-delay:.1s}
+.ni:nth-child(3){animation-delay:.15s}
+
+/* ── Checkin history ── */
+.chi-item{opacity:0;animation:slideInLeft .35s both}
+.chi-item:nth-child(1){animation-delay:.05s}
+.chi-item:nth-child(2){animation-delay:.12s}
+.chi-item:nth-child(3){animation-delay:.19s}
+
+/* ── Settings items ── */
+.sitem{opacity:0;animation:slideInRight .35s both}
+.sitem:nth-child(1){animation-delay:.05s}
+.sitem:nth-child(2){animation-delay:.1s}
+.sitem:nth-child(3){animation-delay:.15s}
+.sitem:nth-child(4){animation-delay:.2s}
+.sitem:nth-child(5){animation-delay:.25s}
+.sitem:nth-child(6){animation-delay:.3s}
+
+/* ── Map markers (CSS only) ── */
+.map-ph{animation:zoomFade .5s both}
+
+/* ── Live dot ── */
+.live-dot{display:inline-flex;align-items:center;gap:5px}
+.live-dot::before{
+  content:'';display:inline-block;width:7px;height:7px;
+  border-radius:50%;background:var(--green);
+  animation:pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Call banner ── */
+#cbanner{animation:slideInDown .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes slideInDown{0%{transform:translateY(-100%);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+/* ── Family code ── */
+#gen-code,#fbc{animation:glow 3s ease-in-out infinite;border-radius:8px}
+
+/* ── Shimmer loading skeleton ── */
+.skeleton{
+  background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;
+}
+
+/* ── Avatar hover ── */
+.mc-av,.mavt{transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s}
+.mc-av:hover,.mavt:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(67,97,238,.25)}
+
+/* ── Action buttons ── */
+.abt{transition:transform .15s,background .15s}
+.abt:active{transform:scale(.85)}
+
+/* ── Bottom nav special active glow ── */
+.nav-item.active{color:var(--accent);text-shadow:0 0 12px rgba(67,97,238,.4)}
+
+/* ── History timeline ── */
+#hist-timeline > div{opacity:0;animation:slideInLeft .35s both}
+#hist-timeline > div:nth-child(1){animation-delay:.05s}
+#hist-timeline > div:nth-child(2){animation-delay:.12s}
+#hist-timeline > div:nth-child(3){animation-delay:.19s}
+#hist-timeline > div:nth-child(4){animation-delay:.26s}
+
+/* ── Member preview (add member) ── */
+.mchip > div,.mavt{animation:popIn .35s both}
+
+/* ── Smooth scrolling ── */
+*{scroll-behavior:smooth}
 </style>
 </head>
 <body>
 <!-- ══ ONBOARDING ══ -->
 <div id="onboarding">
  <div id="splash">
-  <div class="splash-logo">🛡️</div>
+  <div class="splash-logo" style="display:inline-block">🛡️</div>
   <div class="splash-title">FamilyLink</div>
   <div class="splash-sub">Real-time GPS, group chat &amp; emergency alerts<br>for your private family group</div>
   <div class="splash-feats">
@@ -848,7 +995,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v8.0 - NAME ONLY JOIN");
+console.log("FamilyLink v8.0 loaded");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -919,11 +1066,26 @@ function showFlow(id){
    'flow-join-s1','flow-join-s2'].forEach(fid=>{
     const el=document.getElementById(fid); if(el) el.style.display='none';
   });
-  const t=document.getElementById(id); if(t) t.style.display='block';
+  const t=document.getElementById(id);
+  if(t){
+    t.style.display='block';
+    // Trigger animation
+    t.style.animation='none';
+    t.offsetHeight;
+    t.style.animation='fadeInUp .35s cubic-bezier(.22,1,.36,1) both';
+  }
 }
 function setErr(id,msg){
   const el=document.getElementById(id); if(!el)return;
   el.textContent=msg; el.classList.toggle('show',!!msg);
+  if(msg){
+    // shake the nearest input
+    const parent=el.closest('.auth-body,.mfield');
+    if(parent){
+      parent.style.animation='shake .4s cubic-bezier(.22,1,.36,1)';
+      setTimeout(()=>parent.style.animation='',400);
+    }
+  }
 }
 function selRole(el,gid){
   document.querySelectorAll('#'+gid+' .role-opt').forEach(e=>e.classList.remove('sel'));
@@ -1339,8 +1501,14 @@ auth.onAuthStateChanged(async user=>{
       safeSet('hgreet',(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+(CUD.name||'').split(' ')[0]+' 👋');
       console.log('Step 7: UI updated');
 
-      document.getElementById('onboarding').style.display='none';
-      document.getElementById('main-app').style.display='flex';
+      const ob=document.getElementById('onboarding');
+      const app=document.getElementById('main-app');
+      ob.style.animation='fadeOut .3s both';
+      setTimeout(()=>{
+        ob.style.display='none';
+        app.style.display='flex';
+        app.style.animation='zoomFade .4s cubic-bezier(.22,1,.36,1) both';
+      },280);
       hideLoading();
       console.log('Step 8: App shown');
 
@@ -1478,6 +1646,7 @@ function listenMembers(){
     document.getElementById('smembers').textContent=members.length;
     document.getElementById('psm').textContent=members.length;
     renderStrip(members); renderList(members);
+    setTimeout(()=>{staggerAnimate('#mstrip-home .mchip',0);staggerAnimate('#mlist-full .mc',0);},50);
     // Store for history screen
     histMembers=members;
     initHistoryScreen(members);
@@ -1682,7 +1851,7 @@ function listenChat(){
       const d=m.createdAt?m.createdAt.toDate():new Date();
       const ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
       if(ds!==lastD){const sep=document.createElement('div');sep.style.cssText='text-align:center;font-size:11px;color:var(--text3);font-weight:500;padding:6px 0';sep.textContent=ds;list.appendChild(sep);lastD=ds;}
-      const div=document.createElement('div'); div.className='msg '+(isMe?'own':'');
+      const div=document.createElement('div'); div.className='msg '+(isMe?'own':''); div.style.animation='fadeInUp .2s both';
       const ts=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
       const bc=m.bc?'mbubble bc':'mbubble';
       div.innerHTML='<div class="mavt-sm" style="background:'+bg+'">'+esc(m.av||'👤')+'</div>'
@@ -1691,6 +1860,7 @@ function listenChat(){
       list.appendChild(div);
     });
     list.scrollTop=list.scrollHeight;
+    staggerAnimate('#msglist .msg',0);
   });
 }
 async function sendMsg(){
@@ -1759,6 +1929,7 @@ function listenActivity(){
   db.collection('groups').doc(GID).collection('activity').orderBy('createdAt','desc').limit(30).onSnapshot(snap=>{
     const feed=document.getElementById('afeed'); feed.innerHTML='';
     if(snap.empty){feed.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">No activity yet</div>';return;}
+    setTimeout(()=>staggerAnimate('#afeed .act-item',0),50);
     const icons={checkin:'✅',broadcast:'📢',sos:'🆘',call:'📞',zone:'🔔',join:'👋',location:'📍'};
     const bgs={checkin:'var(--teal-soft)',broadcast:'var(--accent-soft)',sos:'var(--red-soft)',call:'var(--green-soft)',zone:'var(--amber-soft)',join:'var(--purple-soft)'};
     snap.docs.forEach(doc=>{
@@ -1798,6 +1969,7 @@ async function doCI(loc){
   await db.collection('groups').doc(GID).collection('checkins').add({uid:CU.uid,name:d.name||'Me',location:loc,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   await logAct('checkin',(d.name||'Someone')+' checked in from '+loc);
   showToast('✅ Checked in from '+loc+' — family notified!');
+  showSuccessFlash('Checked In!<br><small>'+loc+'</small>');
   ciCount++; document.getElementById('psc').textContent=ciCount;
   addNotif('✅','You checked in from '+loc,'Just now');
 }
@@ -1935,7 +2107,21 @@ function clearNotifs(){
 const ALL_S=['home','map','chat','members','emergency','zones','checkin','notifications','settings','history'];
 const NAV_S=['home','map','chat','history','emergency'];
 function switchScreen(name){
-  ALL_S.forEach(s=>{const el=document.getElementById('screen-'+s);if(el)el.classList.toggle('active',s===name);});
+  ALL_S.forEach(s=>{
+    const el=document.getElementById('screen-'+s);
+    if(!el) return;
+    if(s===name){
+      el.classList.add('active');
+      // Force re-trigger animation by resetting it
+      el.style.animation='none';
+      el.offsetHeight; // reflow
+      el.style.animation='';
+      el.classList.add('animating');
+      setTimeout(()=>el.classList.remove('animating'),400);
+    } else {
+      el.classList.remove('active');
+    }
+  });
   NAV_S.forEach(id=>{const b=document.getElementById('nav-'+id);if(b)b.classList.toggle('active',id===name);});
   const chatBar=document.getElementById('chat-bar');
   if(chatBar) chatBar.style.display=name==='chat'?'flex':'none';
@@ -1948,6 +2134,84 @@ function switchScreen(name){
     if(histMap&&typeof google!=='undefined') google.maps.event.trigger(histMap,'resize');
   }
 }
+
+// ══ RIPPLE EFFECT on any button tap ══
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('button,.btn-primary,.btn-secondary,.auth-submit,.mbtn,.abt,.nav-item');
+  if(!btn) return;
+  const r=document.createElement('span');
+  const rect=btn.getBoundingClientRect();
+  const size=Math.max(rect.width,rect.height)*2;
+  r.style.cssText='position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;'
+    +'background:rgba(255,255,255,.3);transform:scale(0);animation:ripple .6s linear;'
+    +'left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px;pointer-events:none;';
+  if(getComputedStyle(btn).position==='static') btn.style.position='relative';
+  btn.style.overflow='hidden';
+  btn.appendChild(r);
+  setTimeout(()=>r.remove(),600);
+});
+
+// ══ ANIMATE items when they enter viewport ══
+function animateOnScroll(){
+  const items=document.querySelectorAll('.mc,.loc-item,.act-item,.zone-item,.chi-item,.ni');
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach((entry,i)=>{
+      if(entry.isIntersecting){
+        const el=entry.target;
+        el.style.animationDelay=(i*0.06)+'s';
+        el.style.opacity='';
+        obs.unobserve(el);
+      }
+    });
+  },{threshold:0.1});
+  items.forEach(el=>obs.observe(el));
+}
+
+// ══ NUMBER COUNTER animation for stats ══
+function animateCounter(el,target,duration){
+  if(!el) return;
+  let start=0; const inc=target/((duration/16));
+  const timer=setInterval(()=>{
+    start+=inc;
+    if(start>=target){start=target;clearInterval(timer);}
+    el.textContent=Math.floor(start);
+  },16);
+}
+
+// ══ SUCCESS FLASH ══
+function showSuccessFlash(msg){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);'
+    +'background:linear-gradient(135deg,#10b981,#059669);color:white;padding:20px 32px;'
+    +'border-radius:20px;font-size:16px;font-weight:800;z-index:9999;text-align:center;'
+    +'box-shadow:0 20px 60px rgba(16,185,129,.4);animation:bounceIn .4s cubic-bezier(.22,1,.36,1) both';
+  el.innerHTML='<div style="font-size:32px;margin-bottom:8px">✅</div>'+msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{
+    el.style.animation='scaleOut .3s cubic-bezier(.22,1,.36,1) both';
+    setTimeout(()=>el.remove(),300);
+  },1800);
+}
+
+// ══ SCREEN SHAKE for errors ══
+function shakeElement(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.style.animation='shake .4s cubic-bezier(.22,1,.36,1)';
+  setTimeout(()=>el.style.animation='',400);
+}
+
+// ══ STAGGER animate a list ══
+function staggerAnimate(selector,baseDelay){
+  document.querySelectorAll(selector).forEach((el,i)=>{
+    el.style.opacity='0';
+    el.style.animation='none';
+    setTimeout(()=>{
+      el.style.animation='fadeInUp .35s cubic-bezier(.22,1,.36,1) both';
+      el.style.animationDelay='0s';
+    },(baseDelay||0)+i*70);
+  });
+}
+
 function toggleLoc(btn){
   btn.classList.toggle('on'); btn.classList.toggle('off');
   const on=btn.classList.contains('on');

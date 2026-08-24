@@ -187,7 +187,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .hstat-val{font-size:19px;font-weight:800}
 .hstat-lbl{font-size:10px;opacity:.8;margin-top:1px}
 .live-dot{display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)}
-.live-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:lp 1.5s infinite}
+.live-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite}
 @keyframes lp{0%,100%{opacity:1}50%{opacity:.3}}
 .mstrip{display:flex;gap:10px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none}
 .mstrip::-webkit-scrollbar{display:none}
@@ -565,12 +565,6 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .map-ph{animation:zoomFade .5s both}
 
 /* ── Live dot ── */
-.live-dot{display:inline-flex;align-items:center;gap:5px}
-.live-dot::before{
-  content:'';display:inline-block;width:7px;height:7px;
-  border-radius:50%;background:var(--green);
-  animation:pulse 1.4s ease-in-out infinite;
-}
 
 /* ── Call banner ── */
 #cbanner{animation:slideInDown .4s cubic-bezier(.22,1,.36,1) both}

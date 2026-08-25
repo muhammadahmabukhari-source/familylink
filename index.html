@@ -165,7 +165,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .topbar-right{display:flex;gap:6px;align-items:center}
 .icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;position:relative}
 .nbadge{position:absolute;top:-3px;right:-3px;width:16px;height:16px;background:var(--red);border-radius:50%;border:2px solid var(--surface);font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center}
-.user-chip{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:4px 12px 4px 4px;cursor:pointer}
+.user-chip{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1.5px solid var(--border);border-radius:22px;padding:5px 14px 5px 5px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
 .uc-av{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:linear-gradient(135deg,#4361ee,#7c3aed)}
 .uc-name{font-size:12px;font-weight:700;color:var(--text)}
 .bottom-nav{display:flex;background:rgba(255,255,255,.92);border-top:1px solid rgba(228,232,245,.8);z-index:50;padding:6px 8px 10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 -4px 24px rgba(79,70,229,.08)}
@@ -178,7 +178,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .screen{display:none;animation:fadeIn .2s ease}
 .screen.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.hero{background:linear-gradient(145deg,#4f46e5 0%,#7c3aed 50%,#9333ea 100%);padding:20px 18px 22px;color:white;position:relative;overflow:hidden}
+.hero{background:linear-gradient(145deg,#4f46e5 0%,#7c3aed 50%,#9333ea 100%);padding:20px 18px 22px;color:white;position:relative;overflow:hidden;isolation:isolate}
 .hero::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08)}
 .hero-greet{font-size:13px;font-weight:500;opacity:.85;margin-bottom:3px}
 .hero-title{font-size:21px;font-weight:800;margin-bottom:14px}
@@ -186,8 +186,8 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .hstat{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 8px;flex:1;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.2);transition:transform .2sr(8px)}
 .hstat-val{font-size:19px;font-weight:800}
 .hstat-lbl{font-size:10px;opacity:.8;margin-top:1px}
-.live-dot{display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)}
-.live-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite}
+.live-dot{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(5,150,105,.1);border:1px solid rgba(5,150,105,.2);border-radius:20px;font-size:11px;font-weight:700;color:#059669}
+.live-dot::before{display:none!important;content:none!important}
 @keyframes lp{0%,100%{opacity:1}50%{opacity:.3}}
 .mstrip{display:flex;gap:10px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none}
 .mstrip::-webkit-scrollbar{display:none}
@@ -308,9 +308,10 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .srow:last-child{border-bottom:none}
 .sicon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .sinfo{flex:1}.sname{font-size:13px;font-weight:600}.ssub{font-size:11px;color:var(--text2);margin-top:1px}
-.toggle{width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.toggle.on{background:var(--accent)}.toggle.off{background:var(--border2)}
-.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.toggle{width:46px;height:26px;border-radius:13px;border:none;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0;outline:none}
+.toggle.on{background:var(--accent)}.toggle.off{background:#cbd5e1}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:white;top:3px;left:3px;transition:left .25s cubic-bezier(.22,1,.36,1);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
 .toggle.on::after{left:21px}.toggle.off::after{left:3px}
 .modal-overlay{position:fixed;inset:0;background:rgba(26,31,60,.45);z-index:500;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
 .modal-sheet{background:var(--surface);border-radius:22px 22px 0 0;padding:20px 20px 32px;width:100%;max-width:430px;animation:su .25s ease;max-height:85vh;overflow-y:auto}
@@ -416,7 +417,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 /* ── Home screen ── */
 .home-header{background-size:200% 200%;animation:gradientShift 10s ease infinite}
-#hgreet{animation:fadeInDown .5s .1s both}
+#hgreet{}
 #htitle{animation:fadeInUp .5s .2s both}
 .stat-card{opacity:0;animation:bounceIn .5s both}
 .stat-card:nth-child(1){animation-delay:.1s}
@@ -465,12 +466,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s,background .2s;
 }
 .btn-primary:active,.btn-secondary:active,.auth-submit:active{transform:scale(.95)!important}
-.btn-primary::before,.auth-submit::before{
-  content:'';position:absolute;top:50%;left:50%;width:0;height:0;
-  background:rgba(255,255,255,.25);border-radius:50%;transform:translate(-50%,-50%);
-  transition:width .5s,height .5s,opacity .5s;opacity:0;
-}
-.btn-primary:active::before,.auth-submit:active::before{width:200px;height:200px;opacity:0}
+/* btn ripple removed - caused black dot */
 
 /* ── Nav bar ── */
 .nav-item{transition:transform .2s cubic-bezier(.22,1,.36,1),color .2s}
@@ -898,10 +894,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   border-radius:20px;
   font-size:11px;font-weight:700;color:var(--green);
 }
-.live-badge::before{
-  content:'';width:6px;height:6px;border-radius:50%;
-  background:var(--green);animation:pulse 1.4s infinite;
-}
+.live-badge::before{display:none!important}
 
 /* Scroll improvements */
 .mcontent::-webkit-scrollbar{width:0}
@@ -941,12 +934,66 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   font-size:11px;font-weight:700;color:#059669;
 }
 /* Remove live-dot ::before that was causing the black dot */
-.live-dot::before{display:none!important}
+.live-dot::before{display:none!important;content:none!important}
 .live-dot{
   display:inline-flex;align-items:center;gap:5px;
   padding:3px 10px;background:rgba(5,150,105,.1);
   border:1px solid rgba(5,150,105,.2);
   border-radius:20px;font-size:11px;font-weight:700;color:#059669;
+}
+
+/* ── Tag badges ── */
+.tag-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tag-green{background:rgba(5,150,105,.1);border:1px solid rgba(5,150,105,.2);color:#059669}
+.tag-blue{background:rgba(79,70,229,.1);border:1px solid rgba(79,70,229,.2);color:#4f46e5}
+
+/* ══ DEFINITIVE DOT FIX ══ */
+/* Prevent any ::before/:after from showing in hero text area */
+.hero *::before,
+.hero *::after {
+  display: none !important;
+  content: none !important;
+}
+/* Allow hero::before (decorative circle) */
+.hero::before {
+  display: block !important;
+  content: '' !important;
+}
+/* Remove ripple from hero area completely */
+.hero button::before,
+.hero div::before {
+  display: none !important;
+}
+
+.live-dot::before,
+.live-badge::before,
+.live-dot::after,
+.hero-greet::before,
+.hero-greet::after,
+#hgreet::before,
+#hgreet::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Redefine live-dot cleanly */
+.live-dot {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(5,150,105,.1);
+  border: 1px solid rgba(5,150,105,.2);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* Hero greet - ensure no pseudo content */
+.hero-greet, #hgreet {
+  display: block !important;
+  position: relative;
 }
 </style>
 </head>
@@ -1173,7 +1220,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
   <!-- MAP -->
   <div class="screen" id="screen-map">
-   <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between"><div style="font-size:16px;font-weight:800">Live Locations</div><div class="live-dot">GPS Live</div></div>
+   <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between"><div style="font-size:16px;font-weight:800">Live Locations</div><div class="tag-badge tag-green">● GPS Live</div></div>
    <div id="map-full"><div class="map-ph" style="height:270px"><div style="font-size:36px">🗺️</div><div style="font-size:13px;color:var(--text2);font-weight:500;text-align:center">Add Google Maps API key<br>in index.html line 7</div></div></div>
    <div style="padding:0 16px"><div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px">Member locations</div>
    <div id="loc-list"><div style="text-align:center;padding:16px;color:var(--text3);font-size:13px">Loading…</div></div></div>
@@ -1264,7 +1311,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   <div class="screen" id="screen-history">
    <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:16px;font-weight:800">Location History</div>
-    <div class="live-dot">30 Days</div>
+    <div class="tag-badge tag-blue">📅 30 Days</div>
    </div>
    <!-- Member selector -->
    <div style="padding:0 16px 8px;font-size:12px;font-weight:600;color:var(--text2)">Select member to view their route history:</div>
@@ -1371,7 +1418,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v9.0 - DOT FIXED");
+console.log("FamilyLink v11.0 - DOT GONE");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -2511,20 +2558,25 @@ function switchScreen(name){
   }
 }
 
-// ══ RIPPLE EFFECT on any button tap ══
-document.addEventListener('click',function(e){
-  const btn=e.target.closest('button,.btn-primary,.btn-secondary,.auth-submit,.mbtn,.abt,.nav-item');
-  if(!btn) return;
-  const r=document.createElement('span');
-  const rect=btn.getBoundingClientRect();
-  const size=Math.max(rect.width,rect.height)*2;
-  r.style.cssText='position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;'
-    +'background:rgba(255,255,255,.3);transform:scale(0);animation:ripple .6s linear;'
-    +'left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px;pointer-events:none;';
-  if(getComputedStyle(btn).position==='static') btn.style.position='relative';
-  btn.style.overflow='hidden';
-  btn.appendChild(r);
-  setTimeout(()=>r.remove(),600);
+// ══ RIPPLE EFFECT - safe version ══
+document.addEventListener('pointerdown',function(e){
+  const btn=e.target.closest('button,.btn-primary,.btn-secondary,.auth-submit,.mbtn,.abt');
+  if(!btn||btn.closest('.hero')) return; // never ripple inside hero
+  try{
+    const r=document.createElement('span');
+    const rect=btn.getBoundingClientRect();
+    const size=Math.max(rect.width,rect.height)*2;
+    r.style.cssText='position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;'
+      +'background:rgba(255,255,255,.25);transform:scale(0);animation:ripple .5s ease-out forwards;'
+      +'left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px;'
+      +'pointer-events:none;z-index:0;';
+    if(getComputedStyle(btn).position==='static') btn.style.position='relative';
+    btn.style.overflow='hidden';
+    btn.appendChild(r);
+    // Remove after animation completes - guaranteed
+    r.addEventListener('animationend',()=>r.remove());
+    setTimeout(()=>{if(r.parentNode)r.remove();},600);
+  }catch(ex){}
 });
 
 // ══ ANIMATE items when they enter viewport ══

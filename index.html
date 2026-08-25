@@ -348,9 +348,8 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 /* ══ ANIMATIONS ══ */
 /* GPU acceleration */
-.screen.active,.modal-sheet,.toast,.msg,.loc-item,.act-item,.mc,.mchip,.sf,.field,.role-opt{
-  -webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform,opacity;
-}
+/* GPU acceleration removed - was causing black artifacts in Firefox */
+.screen.active{backface-visibility:hidden}
 
 /* ── Keyframes ── */
 @keyframes fadeInUp{0%{opacity:0;transform:translateY(28px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
@@ -1418,7 +1417,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v11.0 - DOT GONE");
+console.log("FamilyLink v12.0 - BLACK DOT FIXED");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);

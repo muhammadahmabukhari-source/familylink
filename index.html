@@ -1390,6 +1390,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
     <div class="sg">
      <div class="srow" style="cursor:pointer" onclick="showInvite()"><div class="sicon" style="background:var(--green-soft)">🔑</div><div class="sinfo"><div class="sname">Family Code &amp; Invite</div><div class="ssub">Share with family members</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" onclick="openEditProfileModal()"><div class="sicon" style="background:var(--surface3)">✏️</div><div class="sinfo"><div class="sname">Edit profile</div></div><span style="color:var(--text3)">›</span></div>
+     <div class="srow" style="cursor:pointer" id="remove-member-row" onclick="showRemoveMemberModal()"><div class="sicon" style="background:var(--red-soft)">🗑️</div><div class="sinfo"><div class="sname">Remove Member</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" id="leave-fam-row" onclick="leaveFamily()"><div class="sicon" style="background:var(--red-soft)">🚶</div><div class="sinfo"><div class="sname" style="color:var(--red)">Leave Family</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" onclick="doLogout()"><div class="sicon" style="background:var(--red-soft)">🚪</div><div class="sinfo"><div class="sname" style="color:var(--red)">Sign Out</div></div><span style="color:var(--text3)">›</span></div>
     </div>
@@ -1429,7 +1430,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v15.0 - LEAVE FAMILY OPTION ADDED");
+console.log("FamilyLink v16.0 - REMOVE MEMBER IN SETTINGS");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1865,6 +1866,8 @@ auth.onAuthStateChanged(async user=>{
       safeSet('chat-title',(FAM.name||'Family')+' Chat');
       const lfRow=document.getElementById('leave-fam-row');
       if(lfRow) lfRow.style.display=(CUD&&CUD.isAdmin)?'none':'flex';
+      const rmRow=document.getElementById('remove-member-row');
+      if(rmRow) rmRow.style.display=(CUD&&CUD.isAdmin)?'flex':'none';
       const h=new Date().getHours();
       safeSet('hgreet',(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+(CUD.name||'').split(' ')[0]+' 👋');
       console.log('Step 7: UI updated');
@@ -2088,9 +2091,41 @@ function renderList(members){
   });
 }
 
-// ══ REMOVE MEMBER (Admin only) ══
-async function removeMember(m){
+// ══ REMOVE MEMBER MODAL - pick who to remove (Admin only) ══
+function showRemoveMemberModal(){
   if(!CUD||!CUD.isAdmin){showToast('Only the admin can remove members');return;}
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML='';
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+  const title=document.createElement('div'); title.className='mtitle'; title.textContent='Remove Member'; ms.appendChild(title);
+  const sub=document.createElement('div'); sub.className='msub'; sub.textContent='Choose a member to remove from the family.'; ms.appendChild(sub);
+
+  const list=document.createElement('div'); list.style.cssText='display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;margin-top:10px';
+  const others=(histMembers||[]).filter(m=>m.id!==CU.uid);
+  if(!others.length){
+    const empty=document.createElement('div'); empty.style.cssText='text-align:center;color:var(--text3);font-size:13px;padding:20px';
+    empty.textContent='No other members to remove.';
+    list.appendChild(empty);
+  } else {
+    others.forEach(m=>{
+      const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px';
+      row.innerHTML='<div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px">'+esc(m.av||'👤')+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">'+esc(m.name)+'</div><div style="font-size:12px;color:var(--text3)">'+esc(m.role||'Member')+'</div></div>';
+      const btn=document.createElement('button'); btn.textContent='Remove';
+      btn.style.cssText='padding:8px 14px;border-radius:10px;border:none;background:var(--red-soft);color:var(--red);font-weight:700;font-size:12px;cursor:pointer;font-family:Inter,sans-serif';
+      btn.onclick=function(){ closeModal(); removeMember(m); };
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+  }
+  ms.appendChild(list);
+
+  const acts=document.createElement('div'); acts.className='mactions'; acts.style.marginTop='14px';
+  const closeBtn=document.createElement('button'); closeBtn.className='mbtn secondary'; closeBtn.textContent='Close'; closeBtn.onclick=closeModal;
+  acts.appendChild(closeBtn); ms.appendChild(acts);
+  document.getElementById('modal-overlay').style.display='flex';
+}
+
+// ══ REMOVE MEMBER (Admin only) ══
+async function removeMember(m){  if(!CUD||!CUD.isAdmin){showToast('Only the admin can remove members');return;}
   if(m.id===CU.uid){showToast('You cannot remove yourself');return;}
   if(!confirm('Remove '+m.name+' from the family? They will need the family code to rejoin.')) return;
   try{

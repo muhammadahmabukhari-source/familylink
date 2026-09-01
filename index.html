@@ -1390,6 +1390,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
     <div class="sg">
      <div class="srow" style="cursor:pointer" onclick="showInvite()"><div class="sicon" style="background:var(--green-soft)">🔑</div><div class="sinfo"><div class="sname">Family Code &amp; Invite</div><div class="ssub">Share with family members</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" onclick="openEditProfileModal()"><div class="sicon" style="background:var(--surface3)">✏️</div><div class="sinfo"><div class="sname">Edit profile</div></div><span style="color:var(--text3)">›</span></div>
+     <div class="srow" style="cursor:pointer" id="leave-fam-row" onclick="leaveFamily()"><div class="sicon" style="background:var(--red-soft)">🚶</div><div class="sinfo"><div class="sname" style="color:var(--red)">Leave Family</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" onclick="doLogout()"><div class="sicon" style="background:var(--red-soft)">🚪</div><div class="sinfo"><div class="sname" style="color:var(--red)">Sign Out</div></div><span style="color:var(--text3)">›</span></div>
     </div>
    </div>
@@ -1428,7 +1429,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v14.0 - REMOVE MEMBER + PROFILE EDIT + EMOJI + PHOTOS");
+console.log("FamilyLink v15.0 - LEAVE FAMILY OPTION ADDED");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1862,6 +1863,8 @@ auth.onAuthStateChanged(async user=>{
       safeSet('fbc',GID);
       safeSet('htitle',(FAM.name||'Family')+' is connected');
       safeSet('chat-title',(FAM.name||'Family')+' Chat');
+      const lfRow=document.getElementById('leave-fam-row');
+      if(lfRow) lfRow.style.display=(CUD&&CUD.isAdmin)?'none':'flex';
       const h=new Date().getHours();
       safeSet('hgreet',(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+(CUD.name||'').split(' ')[0]+' 👋');
       console.log('Step 7: UI updated');
@@ -2773,6 +2776,23 @@ function toggleBattery(btn){
   } else {
     showToast('📍 High accuracy mode ON');
     startLocSharing();
+  }
+}
+async function leaveFamily(){
+  if(!CU||!CUD) return;
+  if(CUD.isAdmin){showToast('As the admin, you can\'t leave. Remove all members first if you want to close the family.');return;}
+  if(!confirm('Leave this family? You will need the family code to rejoin.')) return;
+  try{
+    const name=CUD.name||'A member';
+    stopLocSharing();
+    try{ await rtdb.ref('locations/'+GID+'/'+CU.uid).remove(); }catch(e){}
+    try{ await db.collection('groups').doc(GID).collection('members').doc(CU.uid).delete(); }catch(e){}
+    try{ await db.collection('groups').doc(GID).collection('activity').add({type:'leave',text:name+' left the family',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }catch(e){}
+    try{ await db.collection('users').doc(CU.uid).delete(); }catch(e){}
+    if(unsChat)unsChat(); if(unsMem)unsMem();
+    await auth.signOut();
+  }catch(e){
+    showToast('Error leaving family: '+e.message);
   }
 }
 async function doLogout(){

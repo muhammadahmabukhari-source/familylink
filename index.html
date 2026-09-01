@@ -999,7 +999,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 </head>
 <body>
 <!-- ══ ONBOARDING ══ -->
-<div id="onboarding">
+<div id="onboarding" style="display:none">
  <div id="splash">
   <div class="splash-logo" style="display:inline-block">🛡️</div>
   <div class="splash-title">FamilyLink</div>
@@ -1174,7 +1174,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 </div><!-- /onboarding -->
 
 <!-- LOADING -->
-<div id="loading-overlay"><div class="spinner"></div><div class="loading-text" id="ltxt">Loading…</div></div>
+<div id="loading-overlay" style="display:flex"><div class="spinner"></div><div class="loading-text" id="ltxt">Loading…</div></div>
 
 <!-- MAIN APP -->
 <div class="app" id="main-app" style="display:none">
@@ -1430,7 +1430,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v16.0 - REMOVE MEMBER IN SETTINGS");
+console.log("FamilyLink v17.0 - NO LOGIN SCREEN FLASH");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1750,6 +1750,7 @@ async function checkMemberJoinLink(){
   const mname=params.get('name');
   if(!gid||!mid) return false;
   // Show join screen
+  document.getElementById('onboarding').style.display='flex';
   showFlow('flow-member-join');
   document.getElementById('mj-title').textContent='Welcome, '+decodeURIComponent(mname||'Family Member')+'!';
   document.getElementById('mj-sub').textContent='Joining your family group…';

@@ -1220,6 +1220,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
     <button class="qa-btn qa-loc" onclick="switchScreen('map')">📍 All Locations</button>
     <button class="qa-btn qa-ci" onclick="switchScreen('checkin')">✅ Check-in</button>
     <button class="qa-btn qa-zone" onclick="switchScreen('zones')">🔔 Safe Zones</button>
+    <button class="qa-btn qa-fake" onclick="triggerFakeCall()" style="grid-column:span 2">📴 Fake Call (silently alerts family)</button>
    </div>
    <div class="sec" style="margin-top:14px"><div class="sec-lbl">Recent activity</div></div>
    <div class="act-list" id="afeed"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Loading…</div></div>
@@ -1370,11 +1371,18 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
     <div class="fb-info"><div class="fb-name" id="fbn">Loading…</div>
     <div class="fb-code">Code: <b id="fbc">—</b> · <a onclick="showInvite()" style="color:var(--accent);cursor:pointer;font-weight:700">Invite members</a></div></div>
    </div>
+   <div style="padding:0 16px 12px">
+    <div class="sg" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px">
+     <div><div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Plan</div><div id="plan-name" style="font-size:15px;font-weight:800;margin-top:2px">Free Plan</div><div id="plan-sub" style="font-size:12px;color:var(--text2);margin-top:1px">Up to 5 members · 7-day history</div></div>
+     <button onclick="showUpgradeModal()" style="padding:9px 16px;border-radius:20px;border:none;background:linear-gradient(135deg,#4361ee,#7c3aed);color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">⭐ Upgrade</button>
+    </div>
+   </div>
    <div style="padding:0 16px 8px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Location</div>
    <div style="padding:0 16px;display:flex;flex-direction:column;gap:8px">
     <div class="sg">
      <div class="srow"><div class="sicon" style="background:var(--accent-soft)">📍</div><div class="sinfo"><div class="sname">Share my location</div><div class="ssub">Family can see your GPS</div></div><button class="toggle on" onclick="toggleLoc(this)"></button></div>
      <div class="srow"><div class="sicon" style="background:var(--amber-soft)">⚡</div><div class="sinfo"><div class="sname">Battery saver</div><div class="ssub">Update every 5 mins</div></div><button class="toggle off" onclick="toggleBattery(this)"></button></div>
+     <div class="srow"><div class="sicon" style="background:var(--red-soft)">💥</div><div class="sinfo"><div class="sname">Crash &amp; fall detection</div><div class="ssub">Auto-SOS if a hard impact is detected</div></div><button class="toggle off" id="crash-toggle" onclick="toggleCrashDetection(this)"></button></div>
     </div>
    </div>
    <div style="padding:12px 16px 8px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Notifications</div>
@@ -1417,6 +1425,33 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 </div><!-- /app -->
 
 <div class="toast" id="toast"></div>
+<!-- FAKE CALL OVERLAY -->
+<div id="fake-call-overlay" style="display:none;position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1a1a2e,#16213e);color:white;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 30px 50px;text-align:center;font-family:Inter,sans-serif">
+ <div style="margin-top:20px">
+  <div style="font-size:14px;opacity:.7;margin-bottom:6px">Incoming call</div>
+  <div style="width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 16px">👤</div>
+  <div style="font-size:24px;font-weight:700" id="fc-name">Mom</div>
+  <div style="font-size:13px;opacity:.6;margin-top:4px">mobile</div>
+ </div>
+ <div style="display:flex;gap:60px;margin-bottom:10px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+   <button onclick="declineFakeCall()" style="width:64px;height:64px;border-radius:50%;background:#ef4444;border:none;color:white;font-size:26px;cursor:pointer">📞</button>
+   <span style="font-size:12px;opacity:.7">Decline</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+   <button onclick="acceptFakeCall()" style="width:64px;height:64px;border-radius:50%;background:#10b981;border:none;color:white;font-size:26px;cursor:pointer">📞</button>
+   <span style="font-size:12px;opacity:.7">Accept</span>
+  </div>
+ </div>
+</div>
+<div id="fake-call-active" style="display:none;position:fixed;inset:0;z-index:5000;background:#0f0f1a;color:white;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 30px 50px;text-align:center;font-family:Inter,sans-serif">
+ <div style="margin-top:20px">
+  <div style="width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 16px">👤</div>
+  <div style="font-size:24px;font-weight:700" id="fc-name-active">Mom</div>
+  <div style="font-size:13px;opacity:.6;margin-top:4px" id="fc-timer">00:00</div>
+ </div>
+ <button onclick="declineFakeCall()" style="width:64px;height:64px;border-radius:50%;background:#ef4444;border:none;color:white;font-size:26px;cursor:pointer;margin-bottom:10px">📞</button>
+</div>
 <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
  <div class="modal-sheet" id="modal-sheet"></div>
 </div>
@@ -1430,7 +1465,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v17.0 - NO LOGIN SCREEN FLASH");
+console.log("FamilyLink v18.0 - BATTERY + FAKE CALL + CRASH DETECT + PLANS");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1606,7 +1641,7 @@ async function finishCreate(){
     });
     // Create family group
     await db.collection('groups').doc(gid).set({
-      name:ob.fname,city:ob.city,code:gid,adminUid:uid,
+      name:ob.fname,city:ob.city,code:gid,adminUid:uid,plan:'free',memberCount:1,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     // Add admin as first member
@@ -1622,6 +1657,9 @@ async function finishCreate(){
         isAdmin:false,isGuest:true,
         joinedAt:firebase.firestore.FieldValue.serverTimestamp()
       });
+    }
+    if(pendingMembers.length){
+      try{ await db.collection('groups').doc(gid).update({memberCount:firebase.firestore.FieldValue.increment(pendingMembers.length)}); }catch(e){console.warn('memberCount inc:',e);}
     }
     await logAct('join','Family created by '+ob.name+' 🎉');
     hideLoading();
@@ -1668,6 +1706,53 @@ async function doGoogleAuth(){
 }
 
 // ══ JOIN FAMILY (name only - anonymous auth) ══
+// ══ PLAN LIMITS (Free vs Premium) ══
+const PLAN_LIMITS={free:{members:5,historyDays:7},premium:{members:Infinity,historyDays:30}};
+function getPlanLimits(plan){ return PLAN_LIMITS[plan]||PLAN_LIMITS.free; }
+
+function showUpgradeModal(){
+  const isPrem=FAM&&FAM.plan==='premium';
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML='';
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+  const hdr=document.createElement('div'); hdr.style.cssText='text-align:center;margin-bottom:10px';
+  hdr.innerHTML='<div style="font-size:40px;margin-bottom:8px">⭐</div><div style="font-size:18px;font-weight:800">'+(isPrem?'You\'re on Premium':'Upgrade to Premium')+'</div>';
+  ms.appendChild(hdr);
+  const feat=document.createElement('div');
+  feat.style.cssText='background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:2;color:var(--text2)';
+  feat.innerHTML='✅ Unlimited family members<br>✅ 30-day location history (vs 7 days)<br>✅ Crash &amp; fall auto-detection<br>✅ Priority SOS notifications<br>✅ Driving reports (coming soon)';
+  ms.appendChild(feat);
+  const acts=document.createElement('div'); acts.className='mactions';
+  if(isPrem){
+    const close=document.createElement('button'); close.className='mbtn secondary'; close.textContent='Close'; close.onclick=closeModal;
+    acts.appendChild(close);
+  } else {
+    const cancel=document.createElement('button'); cancel.className='mbtn secondary'; cancel.textContent='Not now'; cancel.onclick=closeModal;
+    const upgrade=document.createElement('button'); upgrade.className='mbtn primary'; upgrade.textContent='Upgrade — $4.99/mo';
+    upgrade.onclick=async function(){
+      if(!CUD||!CUD.isAdmin){showToast('Only the family admin can upgrade the plan');return;}
+      upgrade.disabled=true; upgrade.textContent='Processing…';
+      try{
+        // DEVELOPER NOTE: wire up a real payment processor (Stripe, PayPal, etc.)
+        // here before charging anyone. This currently flips the plan directly
+        // so the tiered feature-gating can be demoed end-to-end.
+        await db.collection('groups').doc(GID).update({plan:'premium'});
+        FAM.plan='premium';
+        const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+        safeSet('plan-name','⭐ Premium Plan');
+        safeSet('plan-sub','Unlimited members · 30-day history');
+        closeModal();
+        showToast('🎉 Upgraded to Premium!');
+      }catch(e){
+        upgrade.disabled=false; upgrade.textContent='Upgrade — $4.99/mo';
+        showToast('Error: '+e.message);
+      }
+    };
+    acts.appendChild(cancel); acts.appendChild(upgrade);
+  }
+  ms.appendChild(acts);
+  document.getElementById('modal-overlay').style.display='flex';
+}
+
 async function joinS1(){
   const code=document.getElementById('join-code').value.trim().toUpperCase();
   if(!code||code.length<5){setErr('join-e1','Please enter a valid family code');return;}
@@ -1675,7 +1760,15 @@ async function joinS1(){
   try{
     const snap=await db.collection('groups').doc(code).get();
     if(!snap.exists){hideLoading();setErr('join-e1','Family code not found. Check and try again.');return;}
-    const fd=snap.data(); pendGID=code;
+    const fd=snap.data();
+    const limits=getPlanLimits(fd.plan||'free');
+    const curCount=fd.memberCount||1;
+    if(curCount>=limits.members){
+      hideLoading();
+      setErr('join-e1','This family has reached its '+(fd.plan||'free')+' plan limit of '+limits.members+' members. Ask the admin to upgrade to Premium for unlimited members.');
+      return;
+    }
+    pendGID=code;
     const famEl=document.getElementById('found-fam');
     if(famEl) famEl.textContent='✅ Found: '+(fd.name||'Family')+(fd.city?' · '+fd.city:'');
     const jfn=document.getElementById('joining-fam-name');
@@ -1729,6 +1822,7 @@ async function joinS2(){
       type:'join',text:name+' joined the family! 👋',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
+    try{ await db.collection('groups').doc(gid).update({memberCount:firebase.firestore.FieldValue.increment(1)}); }catch(e){console.warn('memberCount inc:',e);}
     hideLoading();
   }catch(e){
     hideLoading();
@@ -1814,7 +1908,7 @@ auth.onAuthStateChanged(async user=>{
           phone:'',groupId:gid,isAdmin:true,joinedAt:firebase.firestore.FieldValue.serverTimestamp()
         });
         await db.collection('groups').doc(gid).set({
-          name:(user.displayName||'My')+' Family',city:'',code:gid,adminUid:user.uid,
+          name:(user.displayName||'My')+' Family',city:'',code:gid,adminUid:user.uid,plan:'free',memberCount:1,
           createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
         await db.collection('groups').doc(gid).collection('members').doc(user.uid).set({
@@ -1839,7 +1933,7 @@ auth.onAuthStateChanged(async user=>{
           joinedAt:firebase.firestore.FieldValue.serverTimestamp()
         },{merge:true});
         await db.collection('groups').doc(gid).set({
-          name:'My Family',city:'',code:gid,adminUid:user.uid,
+          name:'My Family',city:'',code:gid,adminUid:user.uid,plan:'free',memberCount:1,
           createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
         await db.collection('groups').doc(gid).collection('members').doc(user.uid).set({
@@ -1854,6 +1948,7 @@ auth.onAuthStateChanged(async user=>{
       GID=CUD.groupId;
       const gsnap=await db.collection('groups').doc(GID).get();
       FAM=gsnap.exists?gsnap.data():{name:'My Family',code:GID};
+      if(!FAM.plan) FAM.plan='free';
       const av=(CUD&&CUD.av)||'👤';
       const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
       safeSet('uav',av);
@@ -1863,6 +1958,9 @@ auth.onAuthStateChanged(async user=>{
       safeSet('srole',((CUD&&CUD.role)||'Member')+(FAM.city?' · '+FAM.city:'')+((CUD&&CUD.isAdmin)?' · Admin':''));
       safeSet('fbn',FAM.name||'My Family');
       safeSet('fbc',GID);
+      const isPrem=FAM.plan==='premium';
+      safeSet('plan-name',isPrem?'⭐ Premium Plan':'Free Plan');
+      safeSet('plan-sub',isPrem?'Unlimited members · 30-day history':'Up to 5 members · 7-day history');
       safeSet('htitle',(FAM.name||'Family')+' is connected');
       safeSet('chat-title',(FAM.name||'Family')+' Chat');
       const lfRow=document.getElementById('leave-fam-row');
@@ -1887,6 +1985,7 @@ auth.onAuthStateChanged(async user=>{
       // Init features one by one with error isolation
       try{initCIBtns();}catch(e){console.warn('initCIBtns:',e);}
       try{startLocSharing();}catch(e){console.warn('startLocSharing:',e);}
+      try{initBatteryMonitor();}catch(e){console.warn('initBattery:',e);}
       try{listenMembers();}catch(e){console.warn('listenMembers:',e);}
       try{listenChat();}catch(e){console.warn('listenChat:',e);}
       try{listenActivity();}catch(e){console.warn('listenActivity:',e);}
@@ -1941,6 +2040,20 @@ function startLocSharing(){
 function stopLocSharing(){
   if(locWid!=null){navigator.geolocation.clearWatch(locWid);locWid=null;}
   if(CU&&GID) rtdb.ref('locations/'+GID+'/'+CU.uid+'/online').set(false);
+}
+
+// ══ BATTERY SHARING ══
+function initBatteryMonitor(){
+  if(!navigator.getBattery){console.warn('Battery API not supported on this browser/device');return;}
+  navigator.getBattery().then(batt=>{
+    const push=()=>{
+      if(!CU||!GID) return;
+      rtdb.ref('locations/'+GID+'/'+CU.uid).update({batt:Math.round(batt.level*100),battCharging:!!batt.charging});
+    };
+    push();
+    batt.addEventListener('levelchange',push);
+    batt.addEventListener('chargingchange',push);
+  }).catch(e=>console.warn('Battery monitor:',e));
 }
 let lastHistSave=0;
 async function pushLoc(lat,lng,acc){
@@ -2004,8 +2117,10 @@ function listenLocs(){
         if(isMe&&mapH) mapH.panTo(pos);
       }
       const ts=loc.ts?timeAgo(new Date(loc.ts)):'—';
+      const battIcon=loc.batt!=null?(loc.battCharging?'⚡':(loc.batt<=20?'🪫':'🔋')):'';
+      const battHtml=loc.batt!=null?' <span style="color:'+(loc.batt<=20&&!loc.battCharging?'var(--red)':'var(--text3)')+'">· '+battIcon+' '+loc.batt+'%</span>':'';
       const row=document.createElement('div'); row.className='loc-item';
-      row.innerHTML='<div class="loc-av" style="background:'+bg+'">'+esc(loc.av||'👤')+'</div><div class="loc-info"><div class="loc-name">'+esc(loc.name||'Member')+(isMe?' (You)':'')+'</div><div class="loc-addr">📍 '+esc(loc.addr||'Getting location…')+'</div></div><div class="loc-ts">'+ts+'</div>';
+      row.innerHTML='<div class="loc-av" style="background:'+bg+'">'+esc(loc.av||'👤')+'</div><div class="loc-info"><div class="loc-name">'+esc(loc.name||'Member')+(isMe?' (You)':'')+'</div><div class="loc-addr">📍 '+esc(loc.addr||'Getting location…')+battHtml+'</div></div><div class="loc-ts">'+ts+'</div>';
       locEl.appendChild(row);
     });
     document.getElementById('sonline').textContent=online;
@@ -2086,8 +2201,15 @@ function renderList(members){
     }
 
     list.appendChild(card);
-    rtdb.ref('locations/'+GID+'/'+m.id+'/addr').on('value',s=>{
-      const el=document.getElementById('ml-'+m.id); if(el) el.textContent='📍 '+(s.val()||'Not sharing');
+    rtdb.ref('locations/'+GID+'/'+m.id).on('value',s=>{
+      const v=s.val()||{}; const el=document.getElementById('ml-'+m.id);
+      if(!el) return;
+      let battStr='';
+      if(v.batt!=null){
+        const icon=v.battCharging?'⚡':(v.batt<=20?'🪫':'🔋');
+        battStr=' · '+icon+' '+v.batt+'%';
+      }
+      el.innerHTML='📍 '+esc(v.addr||'Not sharing')+'<span style="color:'+(v.batt!=null&&v.batt<=20&&!v.battCharging?'var(--red)':'var(--text3)')+'">'+esc(battStr)+'</span>';
     });
   });
 }
@@ -2131,6 +2253,7 @@ async function removeMember(m){  if(!CUD||!CUD.isAdmin){showToast('Only the admi
   if(!confirm('Remove '+m.name+' from the family? They will need the family code to rejoin.')) return;
   try{
     await db.collection('groups').doc(GID).collection('members').doc(m.id).delete();
+    try{ await db.collection('groups').doc(GID).update({memberCount:firebase.firestore.FieldValue.increment(-1)}); }catch(e){}
     try{ await rtdb.ref('locations/'+GID+'/'+m.id).remove(); }catch(e){}
     try{ await db.collection('users').doc(m.id).delete(); }catch(e){}
     await logAct('leave',m.name+' was removed from the family');
@@ -2572,6 +2695,143 @@ async function confirmZone(){
 }
 
 // ══ SOS ══
+// ══ FAKE CALL / SILENT SOS ══
+let fcRingCtx=null,fcRingInt=null,fcActiveInt=null,fcActiveSec=0;
+const FC_CALLER_NAMES=['Mom','Dad','Home','Unknown'];
+async function triggerFakeCall(){
+  const name=FC_CALLER_NAMES[Math.floor(Math.random()*FC_CALLER_NAMES.length)];
+  document.getElementById('fc-name').textContent=name;
+  document.getElementById('fc-name-active').textContent=name;
+  document.getElementById('fake-call-overlay').style.display='flex';
+  playFakeRingtone();
+  // Silently alert the family in the background — no toast, no dialog on this device
+  silentSOS();
+}
+function playFakeRingtone(){
+  try{
+    fcRingCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const ring=()=>{
+      const o=fcRingCtx.createOscillator(); const g=fcRingCtx.createGain();
+      o.connect(g); g.connect(fcRingCtx.destination);
+      o.frequency.value=440; g.gain.value=.15;
+      o.start(); setTimeout(()=>o.stop(),700);
+    };
+    ring(); fcRingInt=setInterval(ring,1600);
+  }catch(e){console.warn('Ringtone:',e);}
+}
+function stopFakeRingtone(){
+  if(fcRingInt) clearInterval(fcRingInt); fcRingInt=null;
+  if(fcRingCtx){ try{fcRingCtx.close();}catch(e){} fcRingCtx=null; }
+}
+function acceptFakeCall(){
+  stopFakeRingtone();
+  document.getElementById('fake-call-overlay').style.display='none';
+  document.getElementById('fake-call-active').style.display='flex';
+  fcActiveSec=0;
+  fcActiveInt=setInterval(()=>{
+    fcActiveSec++;
+    const m=String(Math.floor(fcActiveSec/60)).padStart(2,'0'),s=String(fcActiveSec%60).padStart(2,'0');
+    document.getElementById('fc-timer').textContent=m+':'+s;
+  },1000);
+}
+function declineFakeCall(){
+  stopFakeRingtone();
+  if(fcActiveInt) clearInterval(fcActiveInt);
+  document.getElementById('fake-call-overlay').style.display='none';
+  document.getElementById('fake-call-active').style.display='none';
+}
+async function silentSOS(){
+  if(!CU||!GID) return;
+  const d=CUD||{};
+  try{
+    await db.collection('groups').doc(GID).collection('sos').add({
+      uid:CU.uid,name:d.name||'A member',silent:true,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await logAct('sos','🤫 Silent SOS from '+(d.name||'Someone')+' — check on them discreetly, don\'t call attention to it.');
+  }catch(e){console.warn('silentSOS:',e);}
+}
+
+// ══ CRASH & FALL DETECTION ══
+let crashListenerOn=false,crashCooldown=false,crashCountdownInt=null;
+async function toggleCrashDetection(el){
+  const turningOn=!el.classList.contains('on');
+  if(turningOn){
+    if(!window.DeviceMotionEvent){showToast('Your device does not support motion sensors');return;}
+    if(typeof DeviceMotionEvent.requestPermission==='function'){
+      try{
+        const perm=await DeviceMotionEvent.requestPermission();
+        if(perm!=='granted'){showToast('Motion permission denied — cannot enable crash detection');return;}
+      }catch(e){showToast('Could not get motion permission: '+e.message);return;}
+    }
+    window.addEventListener('devicemotion',handleMotionForCrash);
+    crashListenerOn=true;
+    el.classList.add('on'); el.classList.remove('off');
+    showToast('💥 Crash detection enabled');
+  } else {
+    window.removeEventListener('devicemotion',handleMotionForCrash);
+    crashListenerOn=false;
+    el.classList.remove('on'); el.classList.add('off');
+    showToast('Crash detection turned off');
+  }
+}
+function handleMotionForCrash(e){
+  if(crashCooldown) return;
+  const acc=e.accelerationIncludingGravity||e.acceleration;
+  if(!acc) return;
+  const mag=Math.sqrt((acc.x||0)*(acc.x||0)+(acc.y||0)*(acc.y||0)+(acc.z||0)*(acc.z||0));
+  if(mag>35){
+    crashCooldown=true;
+    showCrashAlert();
+    setTimeout(()=>{crashCooldown=false;},60000);
+  }
+}
+function showCrashAlert(){
+  let secs=15;
+  openModal('<div style="text-align:center;padding:8px 0 16px"><div style="font-size:48px;margin-bottom:10px">⚠️</div>'
+    +'<div class="mtitle">Possible Crash or Fall Detected</div>'
+    +'<div class="msub" style="margin-bottom:0">If you don\'t respond, an SOS with your location will be sent to your family in <b id="crash-secs">15</b>s.</div></div>'
+    +'<div class="mactions"><button class="mbtn primary" style="background:var(--green)" onclick="cancelCrashAlert()">✅ I\'m OK</button><button class="mbtn secondary" style="background:var(--red);color:white" onclick="forceSendCrashSOS()">🆘 Send SOS Now</button></div>');
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=880;g.gain.value=.2;o.start();setTimeout(()=>o.stop(),300);
+  }catch(e){}
+  crashCountdownInt=setInterval(()=>{
+    secs--;
+    const el=document.getElementById('crash-secs'); if(el) el.textContent=secs;
+    if(secs<=0){
+      clearInterval(crashCountdownInt);
+      closeModal();
+      sendCrashSOS();
+    }
+  },1000);
+}
+function cancelCrashAlert(){
+  if(crashCountdownInt) clearInterval(crashCountdownInt);
+  closeModal();
+  showToast('Glad you\'re OK 👍');
+}
+function forceSendCrashSOS(){
+  if(crashCountdownInt) clearInterval(crashCountdownInt);
+  sendCrashSOS();
+}
+async function sendCrashSOS(){
+  if(!CU||!GID) return;
+  const d=CUD||{};
+  try{
+    await db.collection('groups').doc(GID).collection('sos').add({
+      uid:CU.uid,name:d.name||'A member',autoDetected:true,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await logAct('sos','⚠️ AUTO-DETECTED crash/fall — SOS sent automatically for '+(d.name||'a member')+'. They may be unable to respond — check on them immediately.');
+    sendSOSNotification((d.name||'A member')+' (auto-detected crash)');
+    document.body.style.background='rgba(239,68,68,.3)';
+    setTimeout(()=>document.body.style.background='',500);
+    setTimeout(startGroupCall,800);
+  }catch(e){console.warn('sendCrashSOS:',e);}
+}
+
 function triggerSOS(){
   openModal('<div style="text-align:center;padding:8px 0 16px"><div style="font-size:48px;margin-bottom:10px">🆘</div>'
     +'<div class="mtitle">Send SOS Alert?</div>'
@@ -2823,6 +3083,7 @@ async function leaveFamily(){
     stopLocSharing();
     try{ await rtdb.ref('locations/'+GID+'/'+CU.uid).remove(); }catch(e){}
     try{ await db.collection('groups').doc(GID).collection('members').doc(CU.uid).delete(); }catch(e){}
+    try{ await db.collection('groups').doc(GID).update({memberCount:firebase.firestore.FieldValue.increment(-1)}); }catch(e){}
     try{ await db.collection('groups').doc(GID).collection('activity').add({type:'leave',text:name+' left the family',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }catch(e){}
     try{ await db.collection('users').doc(CU.uid).delete(); }catch(e){}
     if(unsChat)unsChat(); if(unsMem)unsMem();
@@ -2921,7 +3182,12 @@ function initHistoryScreen(members){
   // Set today's date as default
   const today=new Date().toISOString().split('T')[0];
   const dateInput=document.getElementById('hist-date');
-  if(dateInput) dateInput.value=today;
+  if(dateInput){
+    dateInput.value=today;
+    const limitDays=getPlanLimits(FAM&&FAM.plan).historyDays;
+    const minDate=new Date(Date.now()-limitDays*24*60*60*1000).toISOString().split('T')[0];
+    dateInput.min=minDate; dateInput.max=today;
+  }
 
   members.forEach((m,idx)=>{
     const {bg,c}=getMC(m.id,idx);

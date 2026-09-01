@@ -1156,6 +1156,14 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
      </div>
     </div>
     <div class="field"><label class="flabel">Phone (optional)</label><input class="finput" id="join-phone" type="tel" placeholder="+92 300 0000000"/></div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;margin-top:2px">
+     <input type="checkbox" id="join-want-account" onchange="toggleJoinAccount()" style="width:18px;height:18px;accent-color:var(--accent)"/>
+     <label for="join-want-account" style="font-size:13px;color:var(--text2);cursor:pointer">Create an account (so you can sign in again later)</label>
+    </div>
+    <div id="join-account-fields" style="display:none">
+     <div class="field"><label class="flabel">Email</label><input class="finput" id="join-email" type="email" placeholder="you@example.com"/></div>
+     <div class="field"><label class="flabel">Password</label><input class="finput" id="join-pass" type="password" placeholder="At least 6 characters"/></div>
+    </div>
     <button class="auth-submit" id="join-finish-btn" onclick="joinS2()">🎉 Join Family!</button>
     <div class="auth-err" id="join-e2"></div>
    </div>
@@ -1239,7 +1247,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   <div class="screen" id="screen-members">
    <div style="padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:16px;font-weight:800">Family Members</div>
-    <button onclick="openAddMemberModal()" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;font-family:Inter,sans-serif" id="add-member-btn">＋ Add Member</button>
+    <button onclick="showFamilyCode()" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;font-family:Inter,sans-serif" id="add-member-btn">＋ Invite Member</button>
    </div>
    <div class="mlist" id="mlist-full"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Loading…</div></div>
    <div class="pb"></div>
@@ -1417,7 +1425,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v12.0 - BLACK DOT FIXED");
+console.log("FamilyLink v13.0 - ONLINE STATUS FIXED + FAMILY CODE INVITE");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1452,7 +1460,7 @@ auth.useDeviceLanguage();
 let CU=null,CUD=null,GID=null,FAM=null;
 let mapH=null,mapF=null,markers={};
 let locWid=null,callSec=0,callInt=null,notifN=0;
-let mColors={},unsChat=null,unsMem=null,ciCount=0,pendGID=null;
+let mColors={},unsChat=null,unsMem=null,ciCount=0,pendGID=null,onlineMap={};
 let tTimer;
 
 // onboarding data
@@ -1671,26 +1679,45 @@ async function joinS1(){
   }catch(e){hideLoading();setErr('join-e1',e.message);}
 }
 
+function toggleJoinAccount(){
+  const on=document.getElementById('join-want-account').checked;
+  const f=document.getElementById('join-account-fields');
+  if(f) f.style.display=on?'block':'none';
+}
 async function joinS2(){
   const name=document.getElementById('join-name').value.trim();
   const role=getSelRole('jrole-pick');
   const phone=document.getElementById('join-phone').value.trim();
+  const wantEl=document.getElementById('join-want-account');
+  const wantAccount=!!(wantEl&&wantEl.checked);
+  const email=wantAccount?document.getElementById('join-email').value.trim():'';
+  const pass=wantAccount?document.getElementById('join-pass').value:'';
   if(!name){setErr('join-e2','Please enter your name');return;}
+  if(wantAccount){
+    if(!email||!email.includes('@')){setErr('join-e2','Please enter a valid email');return;}
+    if(pass.length<6){setErr('join-e2','Password must be at least 6 characters');return;}
+  }
   const btn=document.getElementById('join-finish-btn');
   if(btn){btn.disabled=true;btn.textContent='Joining…';}
   const roleEmojis={Father:'👨',Mother:'👩',Son:'👦',Daughter:'👧',Brother:'🧑',Sister:'👩',Grandfather:'👴',Grandmother:'👵',Other:'👤'};
   const av=roleEmojis[role]||'👤';
   showLoading('Joining your family…');
   try{
-    const cred=await auth.signInAnonymously();
+    let cred;
+    if(wantAccount){
+      cred=await auth.createUserWithEmailAndPassword(email,pass);
+      await cred.user.updateProfile({displayName:name});
+    } else {
+      cred=await auth.signInAnonymously();
+    }
     const uid=cred.user.uid; const gid=pendGID;
     await db.collection('users').doc(uid).set({
-      name,av,role,phone:phone||'',email:'',
-      groupId:gid,isAdmin:false,isGuest:true,
+      name,av,role,phone:phone||'',email:email||'',
+      groupId:gid,isAdmin:false,isGuest:!wantAccount,
       joinedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('groups').doc(gid).collection('members').doc(uid).set({
-      uid,name,av,role,phone:phone||'',email:'',isAdmin:false,isGuest:true,
+      uid,name,av,role,phone:phone||'',email:email||'',isAdmin:false,isGuest:!wantAccount,
       joinedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('groups').doc(gid).collection('activity').add({
@@ -1701,97 +1728,10 @@ async function joinS2(){
   }catch(e){
     hideLoading();
     if(btn){btn.disabled=false;btn.textContent='🎉 Join Family!';}
-    setErr('join-e2',e.message);
-  }
-}
-
-// ══ SIGN IN ══
-async function doSignIn(){
-  const email=document.getElementById('si-email').value.trim();
-  const pass=document.getElementById('si-pass').value;
-  if(!email||!pass){setErr('si-err','Please enter email and password');return;}
-  showLoading('Signing in…');
-  try{await auth.signInWithEmailAndPassword(email,pass);}
-  catch(e){
-    hideLoading();
-    console.error('Sign in error:', e.code, e.message);
-    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
-      setErr('si-err','Wrong email or password. Please try again.');
-    } else if(e.code==='auth/network-request-failed'){
-      setErr('si-err','No internet. Please check your connection.');
-    } else if(e.code==='auth/too-many-requests'){
-      setErr('si-err','Too many attempts. Please wait a minute and try again.');
-    } else {
-      setErr('si-err',e.message);
-    }
-  }
-}
-async function doGoogleAuth(){
-  showLoading('Opening Google sign-in…');
-  try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());}
-  catch(e){hideLoading();}
-}
-
-// ══ JOIN FAMILY (family code system) ══
-async function joinS1(){
-  const code=document.getElementById('join-code').value.trim().toUpperCase();
-  if(!code||code.length<5){setErr('join-e1','Please enter a valid family code');return;}
-  showLoading('Searching for family…');
-  try{
-    const snap=await db.collection('groups').doc(code).get();
-    if(!snap.exists){hideLoading();setErr('join-e1','Family code not found. Check and try again.');return;}
-    const fd=snap.data(); pendGID=code;
-    const famEl=document.getElementById('found-fam');
-    if(famEl) famEl.textContent='✅ Found: '+(fd.name||'Family')+(fd.city?' ('+fd.city+')':'');
-    const jfn=document.getElementById('joining-fam-name');
-    if(jfn) jfn.textContent=fd.name||'this family';
-    hideLoading(); setErr('join-e1',''); showFlow('flow-join-s2');
-  }catch(e){hideLoading();setErr('join-e1',e.message);}
-}
-
-function joinS2(){
-  const name=document.getElementById('join-name').value.trim();
-  const email=document.getElementById('join-email').value.trim();
-  const pass=document.getElementById('join-pass').value;
-  if(!name){setErr('join-e2','Please enter your name');return;}
-  if(!email||!email.includes('@')){setErr('join-e2','Please enter a valid email');return;}
-  if(pass.length<6){setErr('join-e2','Password must be at least 6 characters');return;}
-  setErr('join-e2',''); showFlow('flow-join-s3');
-}
-
-async function joinS3(){
-  const name=document.getElementById('join-name').value.trim();
-  const email=document.getElementById('join-email').value.trim();
-  const pass=document.getElementById('join-pass').value;
-  const role=getSelRole('jrole-pick');
-  const phone=document.getElementById('join-phone').value.trim();
-  const btn=document.getElementById('join-finish-btn');
-  if(btn){btn.disabled=true;btn.textContent='Joining…';}
-  const roleEmojis={Father:'👨',Mother:'👩',Son:'👦',Daughter:'👧',Brother:'🧑',Sister:'👩',Grandfather:'👴',Grandmother:'👵',Other:'👤'};
-  const av=roleEmojis[role]||'👤';
-  showLoading('Joining your family…');
-  try{
-    const cred=await auth.createUserWithEmailAndPassword(email,pass);
-    await cred.user.updateProfile({displayName:name});
-    const uid=cred.user.uid; const gid=pendGID;
-    await db.collection('users').doc(uid).set({
-      name,email,av,role,phone:phone||'',
-      groupId:gid,isAdmin:false,
-      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('groups').doc(gid).collection('members').doc(uid).set({
-      uid,name,email,av,role,phone:phone||'',isAdmin:false,
-      joinedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await logAct('join',name+' joined the family! 👋');
-    hideLoading();
-  }catch(e){
-    hideLoading();
-    if(btn){btn.disabled=false;btn.textContent='🎉 Join Family!';}
     if(e.code==='auth/email-already-in-use'){
-      setErr('join-e3','This email is already registered. Please sign in instead.');
+      setErr('join-e2','This email is already registered. Please sign in instead.');
     } else {
-      setErr('join-e3',e.message);
+      setErr('join-e2',e.message);
     }
   }
 }
@@ -2036,6 +1976,9 @@ function listenLocs(){
       if(!mColors[uid]) mColors[uid]=COLORS[idx%COLORS.length];
       const {bg,c}=mColors[uid]; const isMe=uid===CU.uid;
       if(loc.online) online++;
+      onlineMap[uid]=!!loc.online;
+      const sdS=document.getElementById('sdot-s-'+uid); if(sdS) sdS.style.background=loc.online?'var(--green)':'var(--text3)';
+      const sdL=document.getElementById('sdot-l-'+uid); if(sdL) sdL.style.background=loc.online?'var(--green)':'var(--text3)';
       if(typeof google!=='undefined'&&loc.lat&&loc.lng){
         const pos={lat:loc.lat,lng:loc.lng};
         if(markers[uid]){markers[uid].h.setPosition(pos);markers[uid].f.setPosition(pos);}
@@ -2080,7 +2023,7 @@ function renderStrip(members){
     const {bg,c}=getMC(m.id,idx); const isMe=m.id===CU.uid;
     const chip=document.createElement('div'); chip.className='mchip';
     chip.onclick=()=>showMDet(m,bg,c);
-    chip.innerHTML='<div class="mavt rg" style="background:'+bg+'">'+esc(m.av||'👤')+'<span class="sdot-sm" style="background:var(--green)"></span></div><span class="mname">'+(isMe?'You':esc(m.name.split(' ')[0]))+'</span>';
+    chip.innerHTML='<div class="mavt rg" style="background:'+bg+'">'+esc(m.av||'👤')+'<span class="sdot-sm" id="sdot-s-'+m.id+'" style="background:'+(onlineMap[m.id]?'var(--green)':'var(--text3)')+'"></span></div><span class="mname">'+(isMe?'You':esc(m.name.split(' ')[0]))+'</span>';
     strip.appendChild(chip);
   });
   const add=document.createElement('div'); add.className='mchip'; add.onclick=showInvite;
@@ -2100,7 +2043,7 @@ function renderList(members){
 
     const avDiv=document.createElement('div');
     avDiv.className='mc-av'; avDiv.style.background=bg;
-    avDiv.innerHTML=esc(m.av||'👤')+'<span class="sdot-sm" style="background:'+(m.uid&&m.uid!==m.id?'var(--green)':'var(--amber)')+'"></span>';
+    avDiv.innerHTML=esc(m.av||'👤')+'<span class="sdot-sm" id="sdot-l-'+m.id+'" style="background:'+(onlineMap[m.id]?'var(--green)':'var(--text3)')+'"></span>';
     card.appendChild(avDiv);
 
     const infoDiv=document.createElement('div'); infoDiv.className='mc-info';
@@ -2116,11 +2059,9 @@ function renderList(members){
       const acts=document.createElement('div'); acts.className='mc-acts';
       const b1=document.createElement('button'); b1.className='abt g'; b1.textContent='📞';
       b1.onclick=function(e){e.stopPropagation(); m.phone?window.location.href='tel:'+m.phone:showToast('No phone set');};
-      const b2=document.createElement('button'); b2.className='abt b'; b2.textContent='🔗';
-      b2.onclick=function(e){e.stopPropagation(); showMemberJoinLink(m);};
       const b3=document.createElement('button'); b3.className='abt a'; b3.textContent='📍';
       b3.onclick=function(e){e.stopPropagation(); switchScreen('map');};
-      acts.appendChild(b1); acts.appendChild(b2); acts.appendChild(b3);
+      acts.appendChild(b1); acts.appendChild(b3);
       card.appendChild(acts);
     } else {
       const acts=document.createElement('div'); acts.className='mc-acts';
@@ -2502,13 +2443,61 @@ function dismissCall(){clearInterval(callInt);document.getElementById('cbanner')
 
 // ══ INVITE SHEET ══
 function showInvite(){
-  openAddMemberModal();
+  showFamilyCode();
 }
 
 function shareInv(code,url){
-  const text='Join our FamilyLink family!\n1. Open: '+url+'\n2. Tap Join an Existing Family\n3. Sign up\n4. Enter code: '+code;
+  const text='Join our FamilyLink family!\n1. Open: '+url+'\n2. Tap Join an Existing Family\n3. Enter code: '+code+'\n4. Enter your name (and create an account if you want)';
   if(navigator.share) navigator.share({title:'Join FamilyLink',text}).catch(()=>{});
   else navigator.clipboard.writeText(text).then(()=>showToast('Invite text copied!'));
+}
+
+// ══ SHOW FAMILY CODE (single shared code — replaces per-member links) ══
+function showFamilyCode(){
+  const url=location.origin+location.pathname;
+  const code=GID||'—';
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML='';
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+
+  const hdr=document.createElement('div'); hdr.style.cssText='text-align:center;margin-bottom:16px';
+  hdr.innerHTML='<div style="font-size:40px;margin-bottom:8px">🔑</div>'
+    +'<div style="font-size:18px;font-weight:800">Family Code</div>'
+    +'<div style="font-size:13px;color:var(--text2);margin-top:4px">Share this one code with your family.<br>Anyone can use it to join — tap "Join an Existing Family" on the welcome screen.</div>';
+  ms.appendChild(hdr);
+
+  const codeBox=document.createElement('div');
+  codeBox.style.cssText='background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:18px;margin-bottom:14px;text-align:center;font-size:26px;font-weight:800;letter-spacing:2px;color:var(--accent)';
+  codeBox.textContent=code;
+  ms.appendChild(codeBox);
+
+  const acts=document.createElement('div'); acts.style.cssText='display:flex;flex-direction:column;gap:10px';
+
+  const shareBtn=document.createElement('button');
+  shareBtn.style.cssText='padding:14px;background:linear-gradient(135deg,#4361ee,#7c3aed);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif';
+  shareBtn.innerHTML='📤 Share Family Code';
+  shareBtn.onclick=function(){ shareInv(code,url); };
+
+  const copyBtn=document.createElement('button');
+  copyBtn.style.cssText='padding:12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif';
+  copyBtn.textContent='📋 Copy Code';
+  copyBtn.onclick=function(){ navigator.clipboard.writeText(code).then(()=>showToast('✅ Code copied!')); };
+
+  const whatsappBtn=document.createElement('button');
+  whatsappBtn.style.cssText='padding:12px;background:#25D366;border:none;border-radius:12px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif';
+  whatsappBtn.innerHTML='💬 Send via WhatsApp';
+  whatsappBtn.onclick=function(){
+    const msg=encodeURIComponent('Join our FamilyLink family!\n1. Open: '+url+'\n2. Tap "Join an Existing Family"\n3. Enter code: '+code+'\n4. Enter your name');
+    window.open('https://wa.me/?text='+msg,'_blank');
+  };
+
+  const closeBtn=document.createElement('button');
+  closeBtn.style.cssText='padding:12px;background:transparent;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:Inter,sans-serif';
+  closeBtn.textContent='Close';
+  closeBtn.onclick=closeModal;
+
+  acts.appendChild(shareBtn); acts.appendChild(whatsappBtn); acts.appendChild(copyBtn); acts.appendChild(closeBtn);
+  ms.appendChild(acts);
+  document.getElementById('modal-overlay').style.display='flex';
 }
 
 // ══ NOTIFICATIONS ══

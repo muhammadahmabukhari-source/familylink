@@ -261,6 +261,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .abt.g{border-color:rgba(16,185,129,.25);background:var(--green-soft);color:var(--green)}
 .abt.b{border-color:rgba(67,97,238,.25);background:var(--accent-soft);color:var(--accent)}
 .abt.a{border-color:rgba(245,158,11,.25);background:var(--amber-soft);color:var(--amber)}
+.abt.r{border-color:rgba(239,68,68,.25);background:var(--red-soft);color:var(--red)}
 .add-mbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 32px);margin:12px 16px 0;padding:13px;border-radius:var(--radius-sm);border:2px dashed var(--border2);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .add-mbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
@@ -1388,7 +1389,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
    <div style="padding:0 16px;display:flex;flex-direction:column;gap:8px">
     <div class="sg">
      <div class="srow" style="cursor:pointer" onclick="showInvite()"><div class="sicon" style="background:var(--green-soft)">🔑</div><div class="sinfo"><div class="sname">Family Code &amp; Invite</div><div class="ssub">Share with family members</div></div><span style="color:var(--text3)">›</span></div>
-     <div class="srow" style="cursor:pointer" onclick="showToast('Edit profile — coming soon')"><div class="sicon" style="background:var(--surface3)">✏️</div><div class="sinfo"><div class="sname">Edit profile</div></div><span style="color:var(--text3)">›</span></div>
+     <div class="srow" style="cursor:pointer" onclick="openEditProfileModal()"><div class="sicon" style="background:var(--surface3)">✏️</div><div class="sinfo"><div class="sname">Edit profile</div></div><span style="color:var(--text3)">›</span></div>
      <div class="srow" style="cursor:pointer" onclick="doLogout()"><div class="sicon" style="background:var(--red-soft)">🚪</div><div class="sinfo"><div class="sname" style="color:var(--red)">Sign Out</div></div><span style="color:var(--text3)">›</span></div>
     </div>
    </div>
@@ -1396,10 +1397,12 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
   </div>
 
  </div><!-- /content -->
+ <div id="emoji-panel" style="display:none;padding:10px 12px;background:var(--surface2);border-top:1px solid var(--border);grid-template-columns:repeat(8,1fr);gap:6px;font-size:22px" ></div>
  <div class="input-bar" id="chat-bar" style="display:none">
-  <button class="inp-btn sec" onclick="showToast('Emoji picker coming soon')">😊</button>
+  <button class="inp-btn sec" onclick="toggleEmojiPicker()">😊</button>
   <input class="msg-inp" id="chat-inp" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()"/>
-  <button class="inp-btn sec" onclick="showToast('Photo sharing coming soon')">📎</button>
+  <input type="file" id="chat-photo-input" accept="image/*" style="display:none" onchange="handleChatPhoto(event)"/>
+  <button class="inp-btn sec" onclick="document.getElementById('chat-photo-input').click()">📎</button>
   <button class="inp-btn" onclick="sendMsg()">➤</button>
  </div>
  <div class="bottom-nav">
@@ -1425,7 +1428,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v13.0 - ONLINE STATUS FIXED + FAMILY CODE INVITE");
+console.log("FamilyLink v14.0 - REMOVE MEMBER + PROFILE EDIT + EMOJI + PHOTOS");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -2061,7 +2064,9 @@ function renderList(members){
       b1.onclick=function(e){e.stopPropagation(); m.phone?window.location.href='tel:'+m.phone:showToast('No phone set');};
       const b3=document.createElement('button'); b3.className='abt a'; b3.textContent='📍';
       b3.onclick=function(e){e.stopPropagation(); switchScreen('map');};
-      acts.appendChild(b1); acts.appendChild(b3);
+      const b4=document.createElement('button'); b4.className='abt r'; b4.textContent='🗑️';
+      b4.onclick=function(e){e.stopPropagation(); removeMember(m);};
+      acts.appendChild(b1); acts.appendChild(b3); acts.appendChild(b4);
       card.appendChild(acts);
     } else {
       const acts=document.createElement('div'); acts.className='mc-acts';
@@ -2078,6 +2083,81 @@ function renderList(members){
       const el=document.getElementById('ml-'+m.id); if(el) el.textContent='📍 '+(s.val()||'Not sharing');
     });
   });
+}
+
+// ══ REMOVE MEMBER (Admin only) ══
+async function removeMember(m){
+  if(!CUD||!CUD.isAdmin){showToast('Only the admin can remove members');return;}
+  if(m.id===CU.uid){showToast('You cannot remove yourself');return;}
+  if(!confirm('Remove '+m.name+' from the family? They will need the family code to rejoin.')) return;
+  try{
+    await db.collection('groups').doc(GID).collection('members').doc(m.id).delete();
+    try{ await rtdb.ref('locations/'+GID+'/'+m.id).remove(); }catch(e){}
+    try{ await db.collection('users').doc(m.id).delete(); }catch(e){}
+    await logAct('leave',m.name+' was removed from the family');
+    showToast('✅ '+m.name+' removed');
+  }catch(e){
+    showToast('Error removing member: '+e.message);
+  }
+}
+
+// ══ EDIT PROFILE MODAL ══
+function openEditProfileModal(){
+  const roleEmojis={Father:'👨',Mother:'👩',Son:'👦',Daughter:'👧',Brother:'🧑',Sister:'👩',Grandfather:'👴',Grandmother:'👵',Other:'👤'};
+  const ms=document.getElementById('modal-sheet'); ms.innerHTML='';
+  const handle=document.createElement('div'); handle.className='mhandle'; ms.appendChild(handle);
+  const title=document.createElement('div'); title.className='mtitle'; title.textContent='Edit Profile'; ms.appendChild(title);
+
+  const nf=document.createElement('div'); nf.className='mfield';
+  nf.innerHTML='<label class="mlabel">Your Name</label><input class="minput" id="ep-name" value="'+esc((CUD&&CUD.name)||'')+'"/>';
+  ms.appendChild(nf);
+
+  const rl=document.createElement('div'); rl.className='mfield';
+  rl.innerHTML='<label class="mlabel">Role in Family</label>';
+  const roles=[{r:'Son',e:'👦'},{r:'Daughter',e:'👧'},{r:'Mother',e:'👩'},{r:'Father',e:'👨'},{r:'Brother',e:'🧑'},{r:'Sister',e:'👩'},{r:'Grandfather',e:'👴'},{r:'Grandmother',e:'👵'},{r:'Other',e:'👤'}];
+  const rgrid=document.createElement('div'); rgrid.className='role-grid'; rgrid.id='ep-role-pick';
+  const curRole=(CUD&&CUD.role)||'Other';
+  let anySel=false;
+  roles.forEach(ro=>{
+    const isSel=ro.r===curRole; if(isSel) anySel=true;
+    const rb=document.createElement('div'); rb.className='role-opt'+(isSel?' sel':''); rb.dataset.role=ro.r;
+    rb.innerHTML='<div class="re">'+ro.e+'</div>'+ro.r;
+    rb.onclick=function(){selRole(this,'ep-role-pick');};
+    rgrid.appendChild(rb);
+  });
+  if(!anySel&&rgrid.firstChild) rgrid.firstChild.classList.add('sel');
+  rl.appendChild(rgrid); ms.appendChild(rl);
+
+  const pf=document.createElement('div'); pf.className='mfield';
+  pf.innerHTML='<label class="mlabel">Phone Number (optional)</label><input class="minput" id="ep-phone" type="tel" value="'+esc((CUD&&CUD.phone)||'')+'"/>';
+  ms.appendChild(pf);
+
+  const acts=document.createElement('div'); acts.className='mactions';
+  const cancel=document.createElement('button'); cancel.className='mbtn secondary'; cancel.textContent='Cancel'; cancel.onclick=closeModal;
+  const save=document.createElement('button'); save.className='mbtn primary'; save.textContent='Save Changes';
+  save.onclick=async function(){
+    const name=document.getElementById('ep-name').value.trim();
+    const role=getSelRole('ep-role-pick');
+    const phone=document.getElementById('ep-phone').value.trim();
+    if(!name){showToast('Please enter a name');return;}
+    save.disabled=true; save.textContent='Saving…';
+    try{
+      const av=roleEmojis[role]||'👤';
+      await db.collection('users').doc(CU.uid).update({name,role,phone:phone||'',av});
+      await db.collection('groups').doc(GID).collection('members').doc(CU.uid).update({name,role,phone:phone||'',av});
+      CUD.name=name; CUD.role=role; CUD.phone=phone; CUD.av=av;
+      const safeSet=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+      safeSet('uav',av); safeSet('uname',name.split(' ')[0]); safeSet('sav',av); safeSet('sname',name);
+      safeSet('srole',role+(CUD.isAdmin?' · Admin':''));
+      closeModal();
+      showToast('✅ Profile updated');
+    }catch(e){
+      save.disabled=false; save.textContent='Save Changes';
+      showToast('Error: '+e.message);
+    }
+  };
+  acts.appendChild(cancel); acts.appendChild(save); ms.appendChild(acts);
+  document.getElementById('modal-overlay').style.display='flex';
 }
 
 // ══ ADD MEMBER MODAL (Admin only) ══
@@ -2217,14 +2297,56 @@ function listenChat(){
       const div=document.createElement('div'); div.className='msg '+(isMe?'own':''); div.style.animation='fadeInUp .2s both';
       const ts=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
       const bc=m.bc?'mbubble bc':'mbubble';
+      const imgHtml=m.img?'<img src="'+m.img+'" style="max-width:180px;border-radius:10px;display:block;margin-top:4px;cursor:pointer" onclick="window.open(this.src,\'_blank\')"/>':'';
       div.innerHTML='<div class="mavt-sm" style="background:'+bg+'">'+esc(m.av||'👤')+'</div>'
         +'<div class="mbody"><div class="mmeta">'+esc(m.sname)+(m.bc?' <span style="font-size:10px;background:var(--accent-soft);color:var(--accent);padding:1px 5px;border-radius:4px">📢</span>':'')+' · '+ts+'</div>'
-        +'<div class="'+bc+'">'+esc(m.text)+'</div><div class="mts">'+(isMe&&m.bc?'✓✓ Sent to all':ts)+'</div></div>';
+        +'<div class="'+bc+'">'+(m.text?esc(m.text):'')+imgHtml+'</div><div class="mts">'+(isMe&&m.bc?'✓✓ Sent to all':ts)+'</div></div>';
       list.appendChild(div);
     });
     list.scrollTop=list.scrollHeight;
     staggerAnimate('#msglist .msg',0);
   });
+}
+const EMOJI_LIST=['😀','😂','😍','😊','😘','😉','😎','🤗','😢','😭','😡','😱','🥳','🤔','😴','🙄','👍','👎','👏','🙏','💪','🤝','❤️','💙','💚','💛','🧡','💜','🔥','⭐','🎉','✅','❌','⚠️','📍','🚗','🏠','🍽️','☕','🌙','☀️','🌧️','🎂','📅','⏰','💬','📞','🙌','😅'];
+function toggleEmojiPicker(){
+  const p=document.getElementById('emoji-panel');
+  if(p.style.display==='grid'){p.style.display='none';return;}
+  if(!p.dataset.filled){
+    EMOJI_LIST.forEach(e=>{
+      const b=document.createElement('button');
+      b.textContent=e; b.style.cssText='background:none;border:none;cursor:pointer;padding:4px;font-size:22px;line-height:1;font-family:inherit';
+      b.onclick=function(){insertEmoji(e);};
+      p.appendChild(b);
+    });
+    p.dataset.filled='1';
+  }
+  p.style.display='grid';
+}
+function insertEmoji(e){
+  const inp=document.getElementById('chat-inp');
+  inp.value+=e; inp.focus();
+}
+function handleChatPhoto(event){
+  const file=event.target.files&&event.target.files[0];
+  if(!file) return;
+  event.target.value='';
+  if(!file.type.startsWith('image/')){showToast('Please choose an image file');return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxW=800;
+      const scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width*scale; canvas.height=img.height*scale;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.6);
+      postMsg('',false,dataUrl);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 async function sendMsg(){
   const inp=document.getElementById('chat-inp'); const text=inp.value.trim(); if(!text) return;
@@ -2235,11 +2357,11 @@ async function sendBroadcast(){
   inp.value=''; await postMsg(text,true);
   showToast('📢 Broadcast sent to all members!'); addNotif('📢','You broadcast: "'+text.substring(0,40)+'"','Just now');
 }
-async function postMsg(text,isBc){
+async function postMsg(text,isBc,img){
   const d=CUD||{};
-  await db.collection('groups').doc(GID).collection('messages').add({
-    text,suid:CU.uid,sname:d.name||'Me',av:d.av||'👤',bc:isBc,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
+  const payload={text:text||'',suid:CU.uid,sname:d.name||'Me',av:d.av||'👤',bc:!!isBc,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(img) payload.img=img;
+  await db.collection('groups').doc(GID).collection('messages').add(payload);
   if(isBc) await logAct('broadcast',(d.name||'Someone')+' broadcast: "'+text.substring(0,50)+'"');
 }
 
@@ -2293,8 +2415,8 @@ function listenActivity(){
     const feed=document.getElementById('afeed'); feed.innerHTML='';
     if(snap.empty){feed.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">No activity yet</div>';return;}
     setTimeout(()=>staggerAnimate('#afeed .act-item',0),50);
-    const icons={checkin:'✅',broadcast:'📢',sos:'🆘',call:'📞',zone:'🔔',join:'👋',location:'📍'};
-    const bgs={checkin:'var(--teal-soft)',broadcast:'var(--accent-soft)',sos:'var(--red-soft)',call:'var(--green-soft)',zone:'var(--amber-soft)',join:'var(--purple-soft)'};
+    const icons={checkin:'✅',broadcast:'📢',sos:'🆘',call:'📞',zone:'🔔',join:'👋',leave:'👋',location:'📍'};
+    const bgs={checkin:'var(--teal-soft)',broadcast:'var(--accent-soft)',sos:'var(--red-soft)',call:'var(--green-soft)',zone:'var(--amber-soft)',join:'var(--purple-soft)',leave:'var(--red-soft)'};
     snap.docs.forEach(doc=>{
       const a=doc.data(); const ts=a.createdAt?timeAgo(a.createdAt.toDate()):'—';
       const item=document.createElement('div'); item.className='act-item';

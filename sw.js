@@ -1,5 +1,5 @@
-// FamilyLink Service Worker v2 - Push Notifications + Offline
-const CACHE_NAME = 'familylink-v2';
+// FamilyLink Service Worker v3 - Fixed Firestore realtime channel interference
+const CACHE_NAME = 'familylink-v3';
 const OFFLINE_FILES = ['./'];
 
 // Install
@@ -20,8 +20,17 @@ self.addEventListener('activate', e => {
   clients.claim();
 });
 
-// Fetch - network first, cache fallback
+// Fetch - network first, cache fallback (same-origin GET requests only)
 self.addEventListener('fetch', e => {
+  // Only handle simple same-origin GET requests for the app shell.
+  // Cross-origin requests (Firestore's realtime Listen channel, Firebase Auth,
+  // Google Maps, etc.) must be left completely untouched — intercepting and
+  // cloning these streaming/long-poll responses breaks Firestore's live sync.
+  if (e.request.method !== 'GET') return;
+  let url;
+  try { url = new URL(e.request.url); } catch (err) { return; }
+  if (url.origin !== self.location.origin) return;
+
   e.respondWith(
     fetch(e.request)
       .then(res => {

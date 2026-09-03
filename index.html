@@ -1465,7 +1465,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v19.0 - FIXED STALE ONBOARDING TEXT");
+console.log("FamilyLink v20.0 - FIXED STUCK UPGRADE MODAL");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -1729,7 +1729,7 @@ function showUpgradeModal(){
     const cancel=document.createElement('button'); cancel.className='mbtn secondary'; cancel.textContent='Not now'; cancel.onclick=closeModal;
     const upgrade=document.createElement('button'); upgrade.className='mbtn primary'; upgrade.textContent='Upgrade — $4.99/mo';
     upgrade.onclick=async function(){
-      if(!CUD||!CUD.isAdmin){showToast('Only the family admin can upgrade the plan');return;}
+      if(!CUD||!CUD.isAdmin){closeModal();showToast('Only the family admin can upgrade the plan');return;}
       upgrade.disabled=true; upgrade.textContent='Processing…';
       try{
         // DEVELOPER NOTE: wire up a real payment processor (Stripe, PayPal, etc.)

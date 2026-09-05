@@ -1465,7 +1465,7 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 
 <!-- Main App Script -->
 <script>
-console.log("FamilyLink v20.0 - FIXED STUCK UPGRADE MODAL");
+console.log("FamilyLink v21.0 - FIXED RUNAWAY GEOCODING LOOP");
 // Global error catcher
 window.onerror = function(msg, src, line, col, err){
   console.error("JS Error:", msg, "line:", line);
@@ -2056,20 +2056,28 @@ function initBatteryMonitor(){
   }).catch(e=>console.warn('Battery monitor:',e));
 }
 let lastHistSave=0;
+let lastGeoTime=0;
 async function pushLoc(lat,lng,acc){
   if(!CU||!GID) return;
   const d=CUD||{};
   const ref=rtdb.ref('locations/'+GID+'/'+CU.uid);
   ref.set({uid:CU.uid,name:d.name||'Me',av:d.av||'👤',lat,lng,acc,online:true,ts:firebase.database.ServerValue.TIMESTAMP});
-  revGeo(lat,lng,addr=>{
-    ref.child('addr').set(addr);
-    // Save to history every 5 minutes
-    const now=Date.now();
-    if(now-lastHistSave > 5*60*1000){
-      lastHistSave=now;
-      saveLocationHistory(lat,lng,addr);
-    }
-  });
+  // Throttle reverse-geocoding to once every 30s — GPS updates can fire many
+  // times per second, and Nominatim's free API rate-limits (and blocks) apps
+  // that call it that often. The address label doesn't need to update that fast.
+  const now0=Date.now();
+  if(now0-lastGeoTime>30000){
+    lastGeoTime=now0;
+    revGeo(lat,lng,addr=>{
+      ref.child('addr').set(addr);
+      // Save to history every 5 minutes
+      const now=Date.now();
+      if(now-lastHistSave > 5*60*1000){
+        lastHistSave=now;
+        saveLocationHistory(lat,lng,addr);
+      }
+    });
+  }
   checkZones(lat,lng);
 }
 function revGeo(lat,lng,cb){
